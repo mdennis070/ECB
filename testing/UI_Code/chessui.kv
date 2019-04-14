@@ -1,0 +1,193 @@
+<BaseScreen@BoxLayout>:
+	id: base
+	orientation: "vertical"
+	padding: 5
+
+<ElementBox@BoxLayout>:
+	orientation: "vertical"
+	size_hint_y: 0.85
+	padding: 30
+	
+<SettingsButton@ButtonBehavior+Image>:
+	source: "setting_icon.png"
+
+<StatusBar@BoxLayout>:
+	orientation: "horizontal"
+	size_hint_y: 0.1
+
+	AnchorLayout:
+		anchor_x: "right"
+		anchor_y: "top"
+		
+		canvas.before:
+			Color:
+				rgba: 0.5, 0.5, 0.5, 1
+			Rectangle:
+				pos: self.pos
+				size: self.size
+
+		#SettingsButton:
+		#	size_hint_x: None 
+		#	size_hint_y: 0.5
+		#	width: self.height
+
+		Button:
+			size_hint_x: None 
+			size_hint_y: 0.9
+			width: self.height
+	
+			Image:
+				source: "setting_icon.png"
+				size_hint: None, None
+				width: self.parent.width
+				height: self.parent.height - 10
+				center_x: self.parent.center_x
+				center_y: self.parent.center_y + (self.height * 0.01)
+
+<GameTimer@BoxLayout>
+	id: game_timer
+
+	Label:
+		text: "Game Timer:"
+
+	Label:
+		text: "No Time Limit" if slide_game_timer.value == 0 else "{} min".format(str(int(slide_game_timer.value)))
+
+	Slider:
+		id: slide_game_timer
+		min: 0
+		max: 60
+		value: 0
+		step: 1
+
+<MoveTimer@BoxLayout>
+	id: move_timer
+
+	Label:
+		text: "Move Timer:"
+
+	Label:
+		text: "No Time Added" if slide_move_timer.value == 0 else "{} sec".format(str(int(slide_move_timer.value)))
+
+	Slider:
+		id: slide_move_timer
+		min: 0
+		max: 60
+		value: 0
+		step: 1
+<HomeScreen>:
+	id: screen_id_home
+
+	BaseScreen:
+	
+		StatusBar:
+
+		ElementBox:
+			padding: 50, 70
+			spacing: 20
+
+			Button:
+				text: "Single Player"
+				size_hint_y: 0.2
+				on_release: root.manager.current = "start_p1"
+			Button:
+				text: "Multiplayer"
+				size_hint_y: 0.2
+			Button:
+				text: "Load Game"
+				size_hint_y: 0.2
+				on_release: app.stop()
+
+<StartScreen_p1>:
+	id: screen_id_startP1
+	
+	BaseScreen:
+		
+		StatusBar:
+
+		ElementBox:
+
+			BoxLayout:
+				orientation: "horizontal"
+				size_hint_y: 0.1
+		
+				Label:
+					text: "Play as:"
+
+				ToggleButton:
+					id: p1_color_white
+					group: "p1_color"
+					text: "W"
+					value: False
+					size_hint_x: 0.1
+
+				ToggleButton:
+					id: p1_color_black
+					group: "p1_color"
+					text: "B"
+					value: True
+					size_hint_x: 0.1
+
+			BoxLayout:
+				orientation: "horizontal"
+				size_hint_y: 0.1
+			
+				Label:
+					text: "Difficulty"
+
+				Label:
+					text: str(slide_ai_diff.value) 
+
+				Slider:
+					id: slide_ai_diff
+					min: 1
+					max: 8
+					value: 3
+					step: 1
+
+			BoxLayout:
+				orientation: "horizontal"
+				size_hint_y: 0.1
+
+				Label:
+					text: "Tutor"
+				Switch:
+					id: hints
+				
+			BoxLayout
+				Label:
+					text: "CPU Handicap"
+
+				ToggleButton:
+					id: handicap_none
+					group: "cpu_handicap_group"
+					text: "none"
+
+				ToggleButton:
+					id: handicap_p
+					group: "cpu_handicap_group"
+					text: "P"
+
+				ToggleButton:
+					id: handicap_k
+					group: "cpu_handicap_group"
+					text: "K"
+				
+				ToggleButton:
+					id: handicap_r
+					group: "cpu_handicap_group"
+					text: "R"
+				
+				ToggleButton:
+					id: handicap_q
+					group: "cpu_handicap_group"
+					text: "Q"
+
+			GameTimer:
+			
+			MoveTimer:
+
+			Button:
+				text: "Start"
+				size_hint_y: 0.1
+				on_release: root.manager.current = 'board_setup' 

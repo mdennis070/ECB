@@ -2,9 +2,9 @@ import time
 
 from ece44x_EC import Electronics_Control as EC
 
-board_EC = EC()
+board_EC = EC(4)
 
-brightness = 4
+brightness = 4 # 1 to 10
 color_off = (0, 0, 0)
 color_on_w = (0, 255, 0)
 color_on_b = (255, 0, 0)
@@ -22,8 +22,8 @@ while True:
                 board_colors[row][tile] = color_on_b
             else:
                 board_colors[row][tile] = color_off
-    for row in board_colors:
-        print(row)
+    #for row in board_colors:
+    #    print(row)
     [piece_pos_w, piece_pos_b] = board_EC.refresh_board(board_colors, brightness)
     
     for row in range(0, 8):
@@ -34,7 +34,7 @@ while True:
     print("count: {}".format(count))
     print("\n")
     count = count + 1
-    time.sleep(2)
+    time.sleep(0.1)
 
 '''
 LED_colors = [[(0, 0, 0) for i in range(0, 8)] for j in range(0, 8)]

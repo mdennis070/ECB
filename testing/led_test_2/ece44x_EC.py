@@ -17,28 +17,33 @@ class Electronics_Control:
 
     white_pos = [[False for itr1 in range(0, 8)] for itr2 in range(0, 8)]
     black_pos = [[False for itr1 in range(0, 8)] for itr2 in range(0, 8)]
+    
+    num_PCBs = 4
 
-    def __init__(self):
+    def __init__(self, PCBs=4):
         self.chess_EC.open(1, 0)
         self.chess_EC.max_speed_hz = 500000 # 500kHz 
+        self.num_PCBs = PCBs
         pass
     #
 
     def __del__(self):
         self.chess_EC.close()
+        GPIO.cleanup()
         pass
     #
 
     def parse_sensor_data(self, sensor_data):
-        for item in sensor_data[0:4]:
-            print(bin(item))
 
         # 4 bytes represent 1 PCB
         bytes_per_PCB = 4
-        num_PCB = 3
-        for byte in range(0, bytes_per_PCB*num_PCB, bytes_per_PCB):
+        
+        for item in sensor_data[0:bytes_per_PCB*self.num_PCBs]:
+            print(bin(item))
+        
+        for byte in range(0, bytes_per_PCB*self.num_PCBs, bytes_per_PCB):
             row = byte // 2
-
+            
             # shift register 1 and 2
             # tile 1   2   3   4 
             # bit  4:5 6:7 0:1 2:3
@@ -65,17 +70,17 @@ class Electronics_Control:
             row_2 = sensor_data[byte+2:byte+4] # two bytes = 8 tiles
             for col in range(0, 4):
                 tile_val = row_2[0] & index_mask[col]
-                self.white_pos[row+1][col] = self.PIECE_WHITE == (tile_val >> index_shift[col])
-                self.black_pos[row+1][col] = self.PIECE_BLACK == (tile_val >> index_shift[col])
+                self.white_pos[row+1][3-col] = self.PIECE_WHITE == (tile_val >> index_shift[col])
+                self.black_pos[row+1][3-col] = self.PIECE_BLACK == (tile_val >> index_shift[col])
             #
             
             for col in range(0, 4):
                 tile_val = row_2[1] & index_mask[col]
-                self.white_pos[row+1][col+4] = self.PIECE_WHITE == (tile_val >> index_shift[col])
-                self.black_pos[row+1][col+4] = self.PIECE_BLACK == (tile_val >> index_shift[col])
+                self.white_pos[row+1][3-col+4] = self.PIECE_WHITE == (tile_val >> index_shift[col])
+                self.black_pos[row+1][3-col+4] = self.PIECE_BLACK == (tile_val >> index_shift[col])
             #
 
-            return self.white_pos, self.black_pos
+        return self.white_pos, self.black_pos
     #
 
     def format_to_range(self, val, min_val, max_val):
@@ -124,13 +129,13 @@ class Electronics_Control:
         for row_color in LED_data:
             for tile_color in row_color:
                 color = self.format_LED_data(tile_color, brightness)
-                print(color)
+                #print(color)
                 xfer_data.extend(color)
             #
         #
         
         xfer_data.extend(self.LED_END_FRAME)
-        print("xfer data: ", xfer_data)
+        #print("xfer data: ", xfer_data)
 
         GPIO.output(self.latch_pin, 0)
         GPIO.output(self.latch_pin, 1)

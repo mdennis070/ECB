@@ -4,7 +4,7 @@ from ece44x_EC import Electronics_Control as EC
 
 board_EC = EC(4)
 
-brightness = 4 # 1 to 10
+brightness = 3 # 1 to 10
 color_off = (0, 0, 0)
 color_on_w = (0, 255, 0)
 color_on_b = (255, 0, 0)

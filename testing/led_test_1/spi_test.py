@@ -2,7 +2,7 @@ import spidev
 import RPi.GPIO as GPIO
 import time
 
-num_boards = 3
+num_boards = 4
 
 GPIO.setmode(GPIO.BCM)
 

@@ -101,7 +101,7 @@ class BoardSetupScreen(Screen):
 	def clock_callback(self, dt, *args):
 		root = self.ids
 		root.img_white.source = "img/knight_white.jpg"
-		root.img_black.source = "img/knight_white.jpg"
+		root.img_black.source = "img/knight_black.jpg"
 		print(dt)
 
 	def on_leave(self):

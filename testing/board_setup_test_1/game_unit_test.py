@@ -1,10 +1,10 @@
 import time
 import chess
-from Game import Game
+from game_ctrl import Game
 
 chess_game = Game()
 
-piece_types = [chess.QUEEN, chess.KING]
+piece_types = [chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN, chess.KING]
 
 for piece in piece_types:
     print(piece)

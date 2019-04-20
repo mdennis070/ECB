@@ -1,0 +1,19 @@
+<PlayGameScreen>:
+	id: screen_id_play
+
+	BaseScreen:
+	
+		StatusBar:
+
+		ElementBox:
+
+			Button:
+				text: "Multiplayer"
+				size_hint_y: 0.25
+				on_release: root.manager.current = "start_p2"
+			
+			Button:
+				text: "Load Game"
+				size_hint_y: 0.25
+				#on_release: app.stop()
+				on_release: root.manager.current = "load"

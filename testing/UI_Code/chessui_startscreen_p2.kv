@@ -1,0 +1,199 @@
+<StartScreen_p2>:
+	id: screen_id_startP2
+	
+	BaseScreen:
+		
+		StatusBar:
+
+		ElementBox:
+			padding: 50, 10, 50, 50
+			spacing: 15
+
+			BoxLayout:
+				orientation: "horizontal"
+				size_hint_y: 0.4
+				padding: 0, 5
+				spacing: 15
+
+				BoxLayout:
+					orientation: "vertical"
+
+					Label:
+						siZe_hint_y: 0.1
+						text: "Player 1"
+
+					BoxLayout:
+						orientation: "horizontal"
+			
+						ToggleButton:
+							id: p1_color_white
+							group: "p1_color"
+							text: "White"
+							allow_no_selection: False
+	
+						ToggleButton:
+							id: p1_color_black
+							group: "p1_color"
+							text: "Black"
+							allow_no_selection: False
+				
+				BoxLayout:
+					orientation: "vertical"
+					
+					Label:
+						siZe_hint_y: 0.1
+						text: "Player 2"
+		
+					BoxLayout:
+						orientation: "horizontal"
+		
+						ToggleButton:
+							id: p2_color_white
+							group: "p2_color"
+							text: "White"
+							allow_no_selection: False
+
+						ToggleButton:
+							id: p2_color_black
+							group: "p2_color"
+							text: "Black"
+							allow_no_selection: False
+			
+			GridLayout:
+				cols: 2
+				spacing: 5
+				size_hint_y: 0.4
+				
+				SettingLabel:
+					text: "Tutor"
+
+				ToggleButton:
+					id: tutor_on
+					size_hint_x: 2.5
+					size_hint_y: 0.1
+					text: "Enabled" if self.state == "down" else "Disabled"
+
+#				SettingLabel:
+#					text: "Player 1 Handicap"
+#				
+#				BoxLayout:
+#					id: p1_handicap
+#					size_hint_y: 0.1
+#
+#					ToggleButton:
+#						id: p1_handicap_none
+#						size_hint_x: 0.15
+#						group: "p1_handicap_group"
+#						text: "None"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p1=None)
+#
+#					ToggleButton:
+#						size_hint_x: 0.15
+#						group: "p1_handicap_group"
+#						text: "Pawn"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p1=1)
+#
+#					ToggleButton:
+#						size_hint_x: 0.15
+#						group: "p1_handicap_group"
+#						text: "Knight"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p1=2)
+#						
+#					ToggleButton:
+#						size_hint_x: 0.15
+#						group: "p1_handicap_group"
+#						text: "Bishop"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p1=3)
+#
+#					ToggleButton:
+#						size_hint_x: 0.15
+#						group: "p1_handicap_group"
+#						text: "Rook"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p1=4)
+#						
+#					ToggleButton:
+#						size_hint_x: 0.15
+#						group: "p1_handicap_group"
+#						text: "Queen"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p1=5)
+#				
+#				SettingLabel:
+#					text: "Player 2 Handicap"
+#
+#				BoxLayout:
+#					id: p2_handicap
+#					size_hint_y: 0.1
+#
+#					ToggleButton:
+#						id: p2_handicap_none
+#						size_hint_x: 0.15
+#						group: "p2_handicap_group"
+#						state: "down"
+#						text: "None"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p2=None)
+#
+#					ToggleButton:
+#						size_hint_x: 0.15
+#						group: "p2_handicap_group"
+#						text: "Pawn"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p2=1)
+#
+#					ToggleButton:
+#						size_hint_x: 0.15
+#						group: "p2_handicap_group"
+#						text: "Knight"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p2=2)
+#
+#					ToggleButton:
+#						size_hint_x: 0.15
+#						group: "p2_handicap_group"
+#						text: "Bishop"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p2=3)
+#						
+#					ToggleButton:
+#						size_hint_x: 0.15
+#						group: "p2_handicap_group"
+#						text: "Rook"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p2=4)
+#						
+#					ToggleButton:
+#						size_hint_x: 0.15
+#						group: "p2_handicap_group"
+#						text: "Queen"
+#						allow_no_selection: False
+#						on_press: screen_id_startP2.btn_clicked(p2=5)
+				
+				SettingLabel:
+					text: "Game Timer\n(No Time Limit)" if slide_game_timer.value == 0 else "Game Timer\n({} min)".format(str(int(slide_game_timer.value)))
+			
+				Slider:
+					id: slide_game_timer
+					size_hint_y: 0.1
+					min: 0
+					max: 60
+					step: 1
+				
+				SettingLabel:
+					text: "Move Timer\n(No Time Limit)" if slide_move_timer.value == 0 else "Move Timer\n({} sec)".format(str(int(slide_move_timer.value)))
+
+				Slider:
+					id: slide_move_timer
+					size_hint_y: 0.1
+					min: 0
+					max: 60
+					step: 1
+			Button:
+				text: "Play"
+				size_hint_y: 0.2
+				on_release: screen_id_startP2.start_game(root)

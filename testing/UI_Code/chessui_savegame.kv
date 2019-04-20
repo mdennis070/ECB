@@ -1,0 +1,23 @@
+<SaveGameScreen>:
+	id: screen_id_save
+
+	BaseScreen:
+	
+		StatusBar:
+
+		ElementBox:
+			spacing: 10
+
+			TextInput:
+				id: textbox_filename
+				text: "date"
+				font_size: 30
+				multiline: False
+				size_hint_y: 0.15
+
+			Button:
+				text: "Save Game"
+				size_hint_y: 0.25
+				#on_release: root.manager.current = "load"
+
+			Label:

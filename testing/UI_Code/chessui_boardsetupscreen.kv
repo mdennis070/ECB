@@ -1,0 +1,24 @@
+<BoardSetupScreen>:
+	id: screen_id_setup
+
+	BaseScreen:
+	
+		StatusBar:
+
+		ElementBox:
+		
+			BoxLayout:
+				orientation: "horizontal"
+
+				Image:
+					id: img_white
+					source: "img/pawn_white.png"
+			
+				Image:
+					id: img_black
+					source: "img/pawn_black.png"
+
+			Button:
+				text: "Skip"
+				size_hint_y: 0.2
+				on_release: root.btn_skip(root)

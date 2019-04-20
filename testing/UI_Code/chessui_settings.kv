@@ -1,0 +1,63 @@
+<SettingsScreen>:
+	id: screen_id_settings
+
+	BaseScreen:
+	
+		StatusBar:
+
+		ElementBox:
+			spacing: 10
+
+			GridLayout:
+				cols: 2
+
+				SettingLabel:
+					text: "Tile Highlighting"
+				
+				Switch:
+					id: sw1
+					active: True
+					on_active: screen_id_settings.switch(root)
+
+				SettingLabel:
+					text: "     Legal Moves"
+
+				Switch:
+					id: sw2
+					active: True
+
+				SettingLabel:
+					text: "     Pieces in Danger"
+				
+				Switch:
+					id: sw3
+					active: True
+			
+				SettingLabel:
+					text: "     Pieces that plac king in check"
+				
+				Switch:
+					id: sw4
+					active: True
+			
+				SettingLabel:
+					text: "     Last Move"
+				
+				Switch:
+					id: sw5
+					active: True
+
+			Label:
+
+			BoxLayout:
+				orientation: "horizontal"
+				spacing: 20
+				size_hint_y: 0.3
+
+				Button:
+					text: "Back"
+					on_release: root.btn_back()
+			
+				Button:
+					text: "Save Settings"
+					on_release: root.btn_save()

@@ -79,6 +79,9 @@ class Electronics_Control:
                 self.white_pos[row+1][3-col+4] = self.PIECE_WHITE == (tile_val >> index_shift[col])
                 self.black_pos[row+1][3-col+4] = self.PIECE_BLACK == (tile_val >> index_shift[col])
             #
+        for row in range(0, 8, 2):
+            self.white_pos[row] = self.white_pos[row][::-1]
+            self.black_pos[row] = self.black_pos[row][::-1]
 
         return self.white_pos, self.black_pos
     #
@@ -123,6 +126,9 @@ class Electronics_Control:
                 that location False otherwise
     '''
     def refresh_board(self, LED_data, brightness):
+        for row in range(0, 8, 2):
+            LED_data[row] = LED_data[row][::-1]
+
         brightness = brightness * 31 // 10
         xfer_data = self.LED_START_FRAME.copy()
 

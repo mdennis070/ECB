@@ -16,7 +16,7 @@ board_1 = chess.Board('r1bqkb1r/pppp2pp/2n2n2/3Qp3/2B1P3/8/PPPP1PPP/RNB1K1NR b K
 
 print(board_1)
 print(board_1.turn)
-move_list = validation.piece_legal_moves2(board_1, chess.F8)
+move_list = validation.piece_legal_moves(board_1, chess.F8)
 print(move_list)
 for itr in range(len(move_list)):
     move_list[itr] = move_list[itr].to_square
@@ -29,8 +29,5 @@ for row in range(0, 8):
         else:
             board_colors[row][col] = color_off
         print(board_colors[row][col])
-
-for row in range(1, 8, 2):
-    board_colors[row] = board_colors[row][::-1]
 
 board_EC.refresh_board(board_colors, brightness)

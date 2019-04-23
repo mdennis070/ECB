@@ -18,6 +18,6 @@
 			Button:
 				text: "Save Game"
 				size_hint_y: 0.25
-				#on_release: root.manager.current = "load"
+				on_release: root.save_game(textbox_filename.text)
 
 			Label:

@@ -3,12 +3,14 @@ from game_ctrl import Game
 from os import listdir
 from os.path import isfile, join
 from math import ceil
+import datetime
 
 import kivy
 from kivy.app import App
 from kivy.clock import Clock
 #from kivy.uix.gridlayout import GridLayout
 from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.label import Label
 #from kivy.uix.popup import Popup
 #from kivy.properties import ObjectProperty
@@ -26,6 +28,19 @@ gameCtrl = None
 screen_list = []
 
 class SaveGameScreen(Screen):
+    
+    def on_enter(self):
+        root = self.ids
+        now = datetime.datetime.now()
+        root.textbox_filename.text = "{}".format(now.strftime("%Y-%m-%d %I:%M%p"))
+        
+    def save_game(self, filename):
+        now = datetime.datetime.now()
+        date = "{}".format(now.strftime("%Y-%m-%d"))
+        global gameCtrl
+        gameCtrl = Game()
+        gameCtrl.save_game(filename, date)
+        self.manager.current = "home"
 
     def on_leave(self):
         screen_list.append(self.name)
@@ -50,9 +65,15 @@ class LoadGameScreen(Screen):
 
         saved_games = self.list_games()
         saved_games.sort()
+        count = 0
         for game in saved_games:
-            bttn2 = ToggleButton(text=str(game), size_hint_y=0.2, group="g")
+            game_name = game[:-4]
+            bttn2 = ToggleButton(size_hint_y=0.2, group="g", allow_no_selection=False)
+            bttn2.text = str(game_name)
+            if count == 0:
+                bttn2.state = "down"
             self.ids.table.add_widget(bttn2)
+            count = count + 1
 
         spaces = len(saved_games) % 3
         if spaces == 1:
@@ -70,7 +91,18 @@ class LoadGameScreen(Screen):
         return [f for f in listdir(myPath) if isfile(join(myPath, f))]
 
     def load_game(self, *args):
-        pass
+        game_name = None
+        
+        for game in ToggleButtonBehavior.get_widgets("g"):
+            if game.state == "down":
+                game_name = game.text
+        
+        if game_name != None:
+            global gameCtrl
+            gameCtrl = Game()
+            gameCtrl.load_game(str(format(game_name)))
+            self.manager.current = "board_setup"
+        
 
 class SettingsScreen(Screen):
 
@@ -97,11 +129,11 @@ class SettingsScreen(Screen):
 
 class BoardSetupScreen(Screen):
 
-    current_piece = 2
+    current_piece = 1
 
     def on_enter(self):
         self.clock = Clock.schedule_interval(self.clock_callback, 10 / 1000)
-        current_piece = 2
+        current_piece = 1
         gameCtrl.make_start_LED_array(self.current_piece)
 
     def clock_callback(self, dt, *args):
@@ -140,7 +172,8 @@ class BoardSetupScreen(Screen):
         self.clock.cancel()
 
     def btn_skip(self, root):
-        pass
+        self.current_piece = self.current_piece + 1
+        gameCtrl.make_start_LED_array(self.current_piece)
 
 class StartScreen_p1(Screen):
 
@@ -220,8 +253,10 @@ class StartScreen_p2(Screen):
         settings["tutor on"] = root.tutor_on.state == "down"
         settings["game timer"] = root.slide_game_timer.value
         settings["move timer"] = root.slide_move_timer.value
-
-        #Game.start(settings)
+        
+        global gameCtrl
+        gameCtrl = Game()
+        #gameCtrl.start(settings)
         self.manager.current = "board_setup"
 
     def btn_clicked(self, p1=0, p2=0):

@@ -1,14 +1,18 @@
 import chess
 import chess.uci
+import chess.pgn
 from electronics_ctrl import Electronics_Control
 
 class Game:
 
     #Make board
-    board = chess.Board()
+    board = chess.Board("rnbqkbn1/4pppp/pppp4/7r/N7/5PPP/PPPPP3/R1BQKBNR w KQkq - 0 1")
 
     #Make Electronics Control Class
     Electronics_control = Electronics_Control()
+    
+    P1 = "P1"
+    P2 = "AI"
 
     #Variables for initial placement and some for live_highlighting
     brightness = 3
@@ -21,9 +25,8 @@ class Game:
     LED_data = [[(0, 0, 0) for i in range(0, 8)] for j in range(0, 8)]
 
 
-    def __init__(self):   #default constructor
+    def __init__(self, P1="P1", P2="AI", AI_level=3):
         self.start_list_LED_array()
-        pass
 
     #Initial Board setup functions
     def start_list_LED_array(self):
@@ -88,3 +91,28 @@ class Game:
         self.LED_data = [[(0,0,0) for i in range(0, 8)] for j in range(0, 8)]
         return True
 
+    def save_game(self, filename, date):
+        game = chess.pgn.Game()
+        game = chess.pgn.Game.from_board(self.board) #updates the board with the moves made
+        game.headers["Event"] = "Chess Game"
+        game.headers["Date"] = date
+        game.headers["White"] = self.P1
+        game.headers["Black"] = self.P2
+        game.headers["Round"] = self.board.turn
+        game.headers["Result"] = self.board.result() #saves it to the pgn
+        new_pgn = open("./saves/{}.pgn".format(filename), "w", encoding="utf-8") #Open/Save it to a file called test.pgn
+        exporter = chess.pgn.FileExporter(new_pgn)
+        game.accept(exporter)
+        
+    def load_game(self, filename):
+        pgn = open("./saves/{}.pgn".format(filename))
+        loaded_game = chess.pgn.read_game(pgn)
+        self.P1 = loaded_game.headers["White"]
+        self.P2 = loaded_game.headers["Black"]
+        self.turn = loaded_game.headers["Round"]
+        self.result = loaded_game.headers["Result"]
+        
+        for move in loaded_game.mainline_moves():
+            self.board.push(move)
+        print(self.board)
+        

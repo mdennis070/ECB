@@ -1,0 +1,10 @@
+[Event "Example PGN game RAY"]
+[Site "?"]
+[Date "2/4/2019"]
+[Round "True"]
+[White "Ray"]
+[Black "AI"]
+[Result "*"]
+
+1. Nf3 d5 2. d4 Nf6 *
+

@@ -51,6 +51,9 @@ class PlayGameScreen(Screen):
     def on_leave(self):
         screen_list.append(self.name)
 
+    def end_turn(self):
+        pass
+
 
 class LoadGameScreen(Screen):
 
@@ -129,11 +132,11 @@ class SettingsScreen(Screen):
 
 class BoardSetupScreen(Screen):
 
-    current_piece = 1
+    current_piece = 2
 
     def on_enter(self):
         self.clock = Clock.schedule_interval(self.clock_callback, 10 / 1000)
-        current_piece = 1
+        current_piece = 2
         gameCtrl.make_start_LED_array(self.current_piece)
 
     def clock_callback(self, dt, *args):
@@ -163,7 +166,7 @@ class BoardSetupScreen(Screen):
                 root.img_black.source = "img/king_black.jpg"
 
             if self.current_piece == 7:
-                self.manager.current = "home"
+                self.manager.current = "play"
             else:
                 gameCtrl.make_start_LED_array(self.current_piece)
 
@@ -172,8 +175,7 @@ class BoardSetupScreen(Screen):
         self.clock.cancel()
 
     def btn_skip(self, root):
-        self.current_piece = self.current_piece + 1
-        gameCtrl.make_start_LED_array(self.current_piece)
+        self.manager.current = "play"
 
 class StartScreen_p1(Screen):
 
@@ -207,8 +209,7 @@ class StartScreen_p1(Screen):
         settings["move timer"] = root.ids.slide_move_timer.value
         
         global gameCtrl
-        gameCtrl = Game()
-        #gameCtrl.start(settings)
+        gameCtrl = Game(settings)
         self.manager.current = "board_setup"
 
     def btn_clicked(self, p1=0, p2=0):
@@ -255,8 +256,7 @@ class StartScreen_p2(Screen):
         settings["move timer"] = root.slide_move_timer.value
         
         global gameCtrl
-        gameCtrl = Game()
-        #gameCtrl.start(settings)
+        gameCtrl = Game(settings)
         self.manager.current = "board_setup"
 
     def btn_clicked(self, p1=0, p2=0):
@@ -281,6 +281,7 @@ class ChessUIApp(App):
         sm.add_widget(SettingsScreen(name="settings"))
         sm.add_widget(LoadGameScreen(name="load"))
         sm.add_widget(SaveGameScreen(name="save"))
+        sm.add_widget(PlayGameScreen(name="play"))
 
         return sm
 

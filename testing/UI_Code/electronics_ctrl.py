@@ -33,7 +33,7 @@ class Electronics_Control:
         pass
     #
 
-    def parse_sensor_data(self, sensor_data):
+    def parse_sensor_data(self, sensor_data, rotate):
 
         # 4 bytes represent 1 PCB
         bytes_per_PCB = 4
@@ -79,9 +79,21 @@ class Electronics_Control:
                 self.white_pos[row+1][3-col+4] = self.PIECE_WHITE == (tile_val >> index_shift[col])
                 self.black_pos[row+1][3-col+4] = self.PIECE_BLACK == (tile_val >> index_shift[col])
             #
+
         for row in range(0, 8, 2):
             self.white_pos[row] = self.white_pos[row][::-1]
             self.black_pos[row] = self.black_pos[row][::-1]
+        
+        if rotate == 90:
+            for itr in range(0, 3):
+                self.white_pos = list(zip(*self.white_pos[::-1]))
+                self.black_pos = list(zip(*self.black_pos[::-1]))
+        else:
+            self.white_pos = list(zip(*self.white_pos[::-1]))
+            self.black_pos = list(zip(*self.black_pos[::-1]))
+
+        self.white_pos = [list(row) for row in self.white_pos]
+        self.black_pos = [list(row) for row in self.black_pos]
 
         return self.white_pos, self.black_pos
     #
@@ -119,16 +131,24 @@ class Electronics_Control:
                 0 <= red, green, blue <= 255
         brightness:
                 0 <= brightness <= 10
+        rotate:
+                90 or 270 deg
     return:
         white_pos: 8x8 array. True if white has a piece at
                 that location False otherwise
         black_pos: 8x8 array. True if blakc has a piece at
                 that location False otherwise
     '''
-    def refresh_board(self, LED_data, brightness):
+    def refresh_board(self, LED_data, brightness, rotate):
         LED_data = LED_data.copy()
+
+        # rotate the board for white to face correct player
+        for itr in range(0, rotate // 90):
+            LED_data = list(zip(*LED_data[::-1]))
+
         for row in range(0, 8, 2):
             LED_data[row] = LED_data[row][::-1]
+        
 
         brightness = brightness * 31 // 10
         xfer_data = self.LED_START_FRAME.copy()
@@ -149,5 +169,5 @@ class Electronics_Control:
 
         sensor_data = self.chess_EC.xfer2(xfer_data)
         
-        return self.parse_sensor_data(sensor_data)
+        return self.parse_sensor_data(sensor_data, rotate)
     #

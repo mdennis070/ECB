@@ -6,14 +6,12 @@ from electronics_ctrl import Electronics_Control
 class Game:
 
     #Make board
-    board = chess.Board("rnbqkbn1/4pppp/pppp4/7r/N7/5PPP/PPPPP3/R1BQKBNR w KQkq - 0 1")
+    board = chess.Board()
+    #board = chess.Board("rnbqkbn1/4pppp/pppp4/7r/N7/5PPP/PPPPP3/R1BQKBNR w KQkq - 0 1")
 
     #Make Electronics Control Class
     Electronics_control = Electronics_Control()
     
-    P1 = "P1"
-    P2 = "AI"
-
     #Variables for initial placement and some for live_highlighting
     brightness = 3
     setup_array = [[None for i in range(0,6)] for j in range(0,2)]  #2D array holding the tuples of the locations for each type of piece (pawn, knight, bishop... as well as white and black)
@@ -25,14 +23,24 @@ class Game:
     LED_data = [[(0, 0, 0) for i in range(0, 8)] for j in range(0, 8)]
 
 
-    def __init__(self, P1="P1", P2="AI", AI_level=3):
+    def __init__(self, settings=None):
+        if settings != None:
+            if settings["num players"] == 1:
+                # make AI
+                settings["ai diff"]
+            else:
+                settings["p2 color"]
+            #rotate board based on p1 color
+            settings["p1 color"]
+            settings["tutor on"]
+            settings["game timer"]
+            settings["move timer"]
         self.start_list_LED_array()
 
     #Initial Board setup functions
     def start_list_LED_array(self):
         #row = 0 - white, 1 - black
         #col = 0 - Pawn, 1 - Knight, 2 - Bishop, ... , 6 - King
-        #print(board)
         self.setup_array[0][0] =  list(self.board.pieces(chess.PAWN, chess.WHITE))
         self.setup_array[0][1] =  list(self.board.pieces(chess.KNIGHT, chess.WHITE))
         self.setup_array[0][2] =  list(self.board.pieces(chess.BISHOP, chess.WHITE))
@@ -65,7 +73,7 @@ class Game:
 
     #Check if all of the pieces of that specific type is placed on the board. If so, it will move onto the next type of piece after this function
     def check_start_up_state(self, which_piece):
-        [self.white_pos, self.black_pos] = self.Electronics_control.refresh_board(self.LED_data, self.brightness)
+        [self.white_pos, self.black_pos] = self.Electronics_control.refresh_board(self.LED_data, self.brightness, 90)
 
         #print(len(self.setup_array[0][which_piece-1]))
         for x_1 in range(0, len(self.setup_array[0][which_piece-1])):
@@ -92,6 +100,12 @@ class Game:
         return True
 
     def save_game(self, filename, date):
+        # In event header save
+        # - tutor T/F
+        # - four other setting options T/F
+        # - move timer 04
+        # - time left white 00004
+        # - time left black 00010
         game = chess.pgn.Game()
         game = chess.pgn.Game.from_board(self.board) #updates the board with the moves made
         game.headers["Event"] = "Chess Game"
@@ -107,12 +121,12 @@ class Game:
     def load_game(self, filename):
         pgn = open("./saves/{}.pgn".format(filename))
         loaded_game = chess.pgn.read_game(pgn)
-        self.P1 = loaded_game.headers["White"]
-        self.P2 = loaded_game.headers["Black"]
+        P1 = loaded_game.headers["White"]
+        P2 = loaded_game.headers["Black"]
         self.turn = loaded_game.headers["Round"]
         self.result = loaded_game.headers["Result"]
         
         for move in loaded_game.mainline_moves():
             self.board.push(move)
-        print(self.board)
+        #print(self.board)
         

@@ -7,13 +7,11 @@
 
 		ElementBox:
 
+			Label:
+				text: "Turn: White"
+
 			Button:
-				text: "Multiplayer"
+				text: "End Turn"
 				size_hint_y: 0.25
-				on_release: root.manager.current = "start_p2"
+				on_release: root.end_turn()
 			
-			Button:
-				text: "Load Game"
-				size_hint_y: 0.25
-				#on_release: app.stop()
-				on_release: root.manager.current = "load"

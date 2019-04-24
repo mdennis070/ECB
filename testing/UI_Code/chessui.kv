@@ -68,11 +68,21 @@
 	
 		ButtonImage:
 			source: "img/home_icon.png"
+
 	Button:
 		size_hint_x: None 
 		size_hint_y: 1.0
 		width: self.height
 		on_release: root.parent.parent.manager.current = "settings"
+	
+		ButtonImage:
+			source: "img/setting_icon.png"
+		
+	Button:
+		size_hint_x: None 
+		size_hint_y: 1.0
+		width: self.height
+		on_release: app.stop()
 	
 		ButtonImage:
 			source: "img/setting_icon.png"

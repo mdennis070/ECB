@@ -14,7 +14,7 @@ color_off = (0, 0, 0)
 color_on = (0, 255, 0)
 board_colors = [[color_off for i in range(0, 8)] for j in range(0, 8)]
 
-board_1 = chess.Board('8/8/8/r7/8/8/8/8 b KQkq - 0 4')
+board_1 = chess.Board('8/8/8/q7/8/8/8/8 b KQkq - 0 4')
 #board_1 = chess.Board('8/8/8/3q3Q/8/8/8/8 b KQkq - 0 4')
 #board_1 = chess.Board('4k2r/8/8/8/8/8/8/8 b KQkq - 0 4')
 

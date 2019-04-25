@@ -126,6 +126,9 @@ class Electronics_Control:
                 that location False otherwise
     '''
     def refresh_board(self, LED_data, brightness):
+        
+        LED_data = list(zip(*LED_data[::-1]))
+        
         for row in range(0, 8, 2):
             LED_data[row] = LED_data[row][::-1]
 

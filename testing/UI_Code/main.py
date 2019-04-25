@@ -48,11 +48,22 @@ class SaveGameScreen(Screen):
 
 class PlayGameScreen(Screen):
 
+    def on_enter(self):
+        self.clock = Clock.schedule_interval(self.clock_callback, 10 / 1000)
+
+    def clock_callback(self, dt):
+        global gameCtrl
+        gameCtrl.live_move_highlight()
+        gameCtrl.assign_highlight()
+
     def on_leave(self):
         screen_list.append(self.name)
+        self.clock.cancel()
 
     def end_turn(self):
-        pass
+        global gameCtrl
+        turn = gameCtrl.end_turn_move()
+        self.ids.turn_label.text = "Turn: {}".format(turn)
 
 
 class LoadGameScreen(Screen):
@@ -132,11 +143,11 @@ class SettingsScreen(Screen):
 
 class BoardSetupScreen(Screen):
 
-    current_piece = 2
+    current_piece = 1
 
     def on_enter(self):
         self.clock = Clock.schedule_interval(self.clock_callback, 10 / 1000)
-        current_piece = 2
+        current_piece = 1
         gameCtrl.make_start_LED_array(self.current_piece)
 
     def clock_callback(self, dt, *args):

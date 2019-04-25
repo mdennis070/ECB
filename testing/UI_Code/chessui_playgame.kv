@@ -12,6 +12,11 @@
 				text: "Turn: White"
 
 			Button:
+				text: "Hint"
+				size_hint_y: 0.25
+				on_release: root.game_hint()
+
+			Button:
 				text: "End Turn"
 				size_hint_y: 0.25
 				on_release: root.end_turn()

@@ -64,7 +64,10 @@ class PlayGameScreen(Screen):
         global gameCtrl
         turn = gameCtrl.end_turn_move()
         self.ids.turn_label.text = "Turn: {}".format(turn)
-
+    
+    def game_hint(self):
+        global gameCtrl
+        gameCtrl.hint()
 
 class LoadGameScreen(Screen):
 
@@ -138,7 +141,18 @@ class SettingsScreen(Screen):
         self.manager.current = screen_list[-1]
 
     def btn_save(self):
-        #game.settings()
+        root = self.ids
+        sw1_val = root.sw1.active # Tile highlighting
+        sw2_val = root.sw2.active # legal moves
+        sw3_val = root.sw3.active # illegal moves
+        sw4_val = root.sw4.active # king check
+        sw5_val = root.sw5.active # Last move
+
+        global gameCtrl
+        if sw1_val:
+            gameCtrl.update_settings(sw2_val, sw3_val, sw4_val, sw5_val)
+        else:
+            gameCtrl.update_settings(False, False, False, False)
         self.btn_back()
 
 class BoardSetupScreen(Screen):
@@ -214,7 +228,7 @@ class StartScreen_p1(Screen):
         settings["num players"] = 1
         settings["p1 color"] = root.ids.p1_color_white.state == "down"
         settings["p2 color"] = None
-        settings["ai diff"] = root.ids.slide_ai_diff.value
+        settings["ai diff"] = int(root.ids.slide_ai_diff.value)
         settings["tutor on"] = root.ids.tutor_on.state == "down"
         settings["game timer"] = root.ids.slide_game_timer.value
         settings["move timer"] = root.ids.slide_move_timer.value

@@ -3,25 +3,32 @@ import chess.uci
 import chess.pgn
 from electronics_ctrl import Electronics_Control
 from move_validation import move_validation as move_val
+from ai import AI
 
 class Game:
 
     #Make board
-    #board = chess.Board()
+    board = chess.Board()
     #board = chess.Board("rnbqkbn1/4pppp/pppp4/7r/N7/5PPP/PPPPP3/R1BQKBNR w KQkq - 0 1")
-    board = chess.Board("r7/8/k7/8/8/8/7N/7K w KQkq - 0 1")
+    #board = chess.Board("r7/8/k7/8/8/8/7N/7K w KQkq - 0 1")
 
     #Make Electronics Control Class
     Electronics_control = Electronics_Control()
 
     Move_validation = move_val()
+
+    cpu_AI = AI()
+    hint_AI = AI(8)
+    ai_on = False
+    ai_move = None
+    ai_turn = False
     
     #Variables for initial placement and some for live_highlighting
     brightness = 3
     setup_array = [[None for i in range(0,6)] for j in range(0,2)]  #2D array holding the tuples of the locations for each type of piece (pawn, knight, bishop... as well as white and black)
 
     #Color Scheme (tuples)
-    color_dict = {'red':(255,0,0), 'green':(0,255,0), 'blue':(0,0,255), 'majenta':(255,0,255), 'yellow':(255,255,0), 'cyan':(0, 255, 255), 'black':(0,0,0), 'white':(255,255,255)}
+    color_dict = {'red':(255,0,0), 'green':(0,255,0), 'blue':(0,0,255), 'magenta':(255,0,255), 'yellow':(255,255,0), 'cyan':(0, 255, 255), 'black':(0,0,0), 'white':(255,255,255)}
 
     #2D array of tuples indicating the color of each square. Initialize with all LEDs OFF
     LED_data = [[(0, 0, 0) for i in range(0, 8)] for j in range(0, 8)]
@@ -30,11 +37,10 @@ class Game:
      #Variables for live_highlighting
     selected_piece = 0           #a square location (ex: 0 - 63)
     last_selected_piece = None   #Holds the last selected_piece if it exists. It will be reset to None at the end of a turn
-    move_made = None           #temporarily holds moves made (in UCI format ex: g1f3)
-    array_legal_moves = []    #will hold the squares for the legal moves
-    king_in_check   = False     #will hold true/false value that says if king is in check
-    king_pos = None    #will highlight king square in red
-    illegal_array   = []      #will hold array of two positions to show move from and move to square and highlight them yellow
+    move_made = None        #temporarily holds moves made (in UCI format ex: g1f3)
+    array_legal_moves = []  #will hold the squares for the legal moves
+    king_in_check   = False #will hold true/false value that says if king is in check
+    king_pos = None         #will highlight king square in red
     illegal_move    = None     #will hold true/false value that says if an illegal move was made
 
     castling_state = False      #Tracks if castling happened
@@ -42,12 +48,25 @@ class Game:
     end_turn = False            #Only true if user hits clock or time runs out
 
     #highlight arrays
+    highlight_legal = True
+    highlight_illegal = True
+    highlight_king = True
+    highlight_last = True
+    highlight_hint = True
+
     legal_move_highlight = []   #holds locations to highlight for legal move highilighting
     last_move_highlight = []    #holds locations to highlight for last move highlighting
-    #illegal_move_highlight = [] #holds locations to highlight for illegal move highlighting #REPLACED BY "illegal_array = []"
+    illegal_array   = []      #will hold array of two positions to show move from and move to square and highlight them yellow
     king_check_highlight = []   #holds locations to highlight for king check highlighting
     castle_move_highlight = []  #holds locations to highlight for castle (if castling was done)
+    hint_highlight = []
+    ai_move_highlight = []
     #piece_danger_highlight = []
+    
+    chess_w = None
+    chess_b = None
+
+    rotate_board = 90
 
     #movement
     move_buffer = None
@@ -55,17 +74,36 @@ class Game:
 
     def __init__(self, settings=None):
         if settings != None:
+            if settings["p1 color"]: # P1 is white
+                self.chess_w = "P1"
+                self.chess_b = "P2"
+            else:
+                self.chess_w = "P2"
+                self.chess_b = "P1"
+
             if settings["num players"] == 1:
                 # make AI
-                settings["ai diff"]
-            else:
-                settings["p2 color"]
+                level = settings["ai diff"]
+                self.cpu_AI.set_level(level)
+                if settings["p2 color"]: # P2 is white
+                    self.chess_w = "AI{}".format(level)
+                else:
+                    self.chess_b = "AI{}".format(level)
+
             #rotate board based on p1 color
-            settings["p1 color"]
-            settings["tutor on"]
-            settings["game timer"]
-            settings["move timer"]
+
+
+            hint_on = settings["tutor on"]
+            #settings["game timer"]
+            #settings["move timer"]
         self.start_list_LED_array()
+
+    def update_settings(self, h_legal, h_illegal, h_king, h_last):
+        #self.highlight_legal = h_legal
+        #self.highlight_illegal = h_illegal
+        #self.highlight_king = h_king
+        #self.highlight_last = h_last
+        pass
 
     #Initial Board setup functions
     def start_list_LED_array(self):
@@ -92,7 +130,7 @@ class Game:
             tile_val = self.setup_array[0][which_piece-1][x_1]
             row = tile_val // 8
             col = tile_val % 8
-            self.LED_data[row][col] = self.color_dict["majenta"]   #white pieces
+            self.LED_data[row][col] = self.color_dict["magenta"]   #white pieces
 
         for x_2 in range(0,len(self.setup_array[1][which_piece-1])):
             #setup black pieces
@@ -140,8 +178,8 @@ class Game:
         game = chess.pgn.Game.from_board(self.board) #updates the board with the moves made
         game.headers["Event"] = "Chess Game"
         game.headers["Date"] = date
-        game.headers["White"] = "P1w"
-        game.headers["Black"] = "AIb3"
+        game.headers["White"] = self.chess_w
+        game.headers["Black"] = self.chess_b
         game.headers["Round"] = self.board.turn
         game.headers["Result"] = self.board.result() #saves it to the pgn
         new_pgn = open("./saves/{}.pgn".format(filename), "w", encoding="utf-8") #Open/Save it to a file called test.pgn
@@ -151,16 +189,40 @@ class Game:
     def load_game(self, filename):
         pgn = open("./saves/{}.pgn".format(filename))
         loaded_game = chess.pgn.read_game(pgn)
-        P1 = loaded_game.headers["White"]
-        P2 = loaded_game.headers["Black"]
+        self.chess_w = loaded_game.headers["White"]
+        self.chess_b = loaded_game.headers["Black"]
         self.turn = loaded_game.headers["Round"]
         self.result = loaded_game.headers["Result"]
         
+        self.board.set_fen(loaded_game.headers["FEN"])
         for move in loaded_game.mainline_moves():
             self.board.push(move)
         print(self.board)
         self.start_list_LED_array()
-            
+
+        if self.chess_w[0:2] == "AI":
+            self.cpu_AI.set_level(int(self.chess_w[-1]))
+        elif self.chess_b[0:2] == "AI":
+            self.cpu_AI.set_level(int(self.chess_b[-1]))
+        
+        if self.chess_w == "P1":
+            self.rotate_board = 90
+        else:
+            self.rotate_board = 270
+ 
+    def hint(self):
+        self.hint_highlight = []
+
+        move = self.hint_AI.hint(self.board)
+
+        row = move.to_square // 8
+        col = move.to_square % 8
+        self.hint_highlight.append([row, col])
+
+        row = move.from_square // 8
+        col = move.from_square % 8
+        self.hint_highlight.append([row, col])
+
     def clear_board_LED(self):
         self.LED_data = [[(0, 0, 0) for i in range(0, 8)] for j in range(0, 8)] #2D array of tuples indicating the color of each square. Initialize with all LEDs OFF
         #repopulate past move and check if applicable
@@ -215,12 +277,16 @@ class Game:
     #pushes the move when the turn has ended
     #NEED TO CHANGE THIS CODE FOR THE NEW REVISION. IT WILL ALSO ASSIGN THE HIGHLIGHTING IN HERE.
     def end_turn_move(self):
-        #Functions before this need to check if the last move the user made was a legal move before they end the turn
-        #SHOULD I MAKE A CONDITION TO ALSO SEE IF illegal_move == false? (means and illegal move was last made)
-        if self.move_buffer != None:
+
+        self.ai_on = self.chess_w[0:2] == "AI" or self.chess_b[0:2] == "AI"
+        self.ai_turn = (self.chess_w[0:2] == "AI" and self.board.turn) or (self.chess_b[0:2] == "AI" and not self.board.turn)
+        
+
+        end_turn_ai = self.ai_on and self.ai_turn and self.move_buffer == self.ai_move
+        end_turn_ai = (self.ai_on and not self.ai_turn and self.move_buffer != None) or end_turn_ai
+        end_turn_2p = not self.ai_on and self.move_buffer != None
+        if end_turn_2p or end_turn_ai:
             self.board.push(self.move_buffer)
-            #print("PUSHED THE MOVE@@@@@@@@@@@@@@@@@@@@@@@@@")
-            #print(self.move_buffer)
             self.clear_board_LED()
 
             #Move was made. Highlight prev_player_move cyan or other color (from and to square)
@@ -244,6 +310,22 @@ class Game:
             
             self.checking_king_check()
 
+            self.hint_highlight = []
+
+            self.ai_move_highlight = []
+
+            if self.ai_on and not self.ai_turn:
+                self.ai_move = self.cpu_AI.AI_move(self.board)
+
+                row = self.ai_move.to_square // 8
+                col = self.ai_move.to_square % 8
+                self.ai_move_highlight.append([row, col])
+
+                row = self.ai_move.from_square // 8
+                col = self.ai_move.from_square % 8
+                self.ai_move_highlight.append([row, col])
+            
+
             print(self.board)
             print("")
 
@@ -257,18 +339,17 @@ class Game:
     def assign_highlight(self):
         self.clear_board_LED()
         
-        #Last Move
-        for x in range(0, len(self.last_move_highlight)):   #Only 2 squares are higlighted
-            self.LED_data[self.last_move_highlight[x][0]][self.last_move_highlight[x][1]] = self.color_dict["blue"]
-        #Already cleared in "end_turn()"
+        self.ai_turn = (self.chess_w[0:2] == "AI" and self.board.turn) or (self.chess_b[0:2] == "AI" and not self.board.turn)
 
-        #Illegal Move (Technically this is already processed)
-        for x in range(0, len(self.illegal_array)):
-            self.LED_data[self.illegal_array[x][0]][self.illegal_array[x][1]] = self.color_dict["yellow"]
+        #Last Move
+        if self.highlight_last:
+            for x in range(0, len(self.last_move_highlight)):   #Only 2 squares are higlighted
+                self.LED_data[self.last_move_highlight[x][0]][self.last_move_highlight[x][1]] = self.color_dict["blue"]
 
         #King Check
-        for x in range(0, len(self.king_check_highlight)):
-            self.LED_data[self.king_check_highlight[x][0]][self.king_check_highlight[x][1]] = self.color_dict["red"]
+        if self.highlight_king:
+            for x in range(0, len(self.king_check_highlight)):
+                self.LED_data[self.king_check_highlight[x][0]][self.king_check_highlight[x][1]] = self.color_dict["red"]
 
         #Castle Check
         for x in range(0, len(self.castle_move_highlight)):
@@ -276,13 +357,33 @@ class Game:
         #Reset the array
         self.castle_move_highlight = []
         
-        #Legal Moves (THIS WILL HAVE A PROBLEM BECAUSE LEGAL_MOVES WILL ALWAYS BE APPENDED EACH TIME )
-        for x in range(0, len(self.legal_move_highlight)):
-            row = self.legal_move_highlight[x][0]
-            col = self.legal_move_highlight[x][1]
-            self.LED_data[row][col] = self.legal_move_highlight[x][2]
+        #Legal Moves 
+        if self.highlight_legal and not self.ai_turn:
+            for x in range(0, len(self.legal_move_highlight)):
+                row = self.legal_move_highlight[x][0]
+                col = self.legal_move_highlight[x][1]
+                self.LED_data[row][col] = self.legal_move_highlight[x][2]
+        
+        #Hint
+        if self.highlight_hint and not self.ai_turn:
+            for x in range(0, len(self.hint_highlight)):
+                row = self.hint_highlight[x][0]
+                col = self.hint_highlight[x][1]
+                self.LED_data[row][col] = self.color_dict["magenta"]
+        
+        #AI Move
+        if self.ai_turn:
+            for x in range(0, len(self.ai_move_highlight)):
+                row = self.ai_move_highlight[x][0]
+                col = self.ai_move_highlight[x][1]
+                self.LED_data[row][col] = self.color_dict["magenta"]
 
-        [self.white_pos, self.black_pos] = self.Electronics_control.refresh_board(self.LED_data, self.brightness, 90)
+        #Illegal Move (Technically this is already processed)
+        if self.highlight_illegal: 
+            for x in range(0, len(self.illegal_array)):
+                self.LED_data[self.illegal_array[x][0]][self.illegal_array[x][1]] = self.color_dict["yellow"]
+
+        [self.white_pos, self.black_pos] = self.Electronics_control.refresh_board(self.LED_data, self.brightness, self.rotate_board)
 
 
     def live_move_highlight(self):
@@ -302,7 +403,7 @@ class Game:
         if(self.move_made != None and self.castling_state == False): #a move was made
 
             self.illegal_move = self.Move_validation.is_legal_move(self.board, self.move_made)  #check if move was illegal
-            if(self.illegal_move == False):  #It is an illegal move
+            if(self.illegal_move == False or (self.ai_on and self.ai_turn and self.move_made != self.ai_move)):  #It is an illegal move
                 self.move_buffer = None
                 #Do not push the move (don't update the board with the illegal move)
                 #highlight yellow (from and to squares)

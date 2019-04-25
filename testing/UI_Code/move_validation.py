@@ -19,7 +19,7 @@ class move_validation:
     #
 
     def determine_move_made(self, prev_board, white_pos, black_pos):
-
+        
         prev_piece_map = prev_board.piece_map()
 
         w_moved_from_here = []
@@ -69,7 +69,7 @@ class move_validation:
         len_w_from_here = len(w_moved_from_here)
         len_b_to_here = len(b_moved_to_here)
         len_b_from_here = len(b_moved_from_here)
-
+        
         w_capture_made = current_turn == chess.WHITE and len_w_to_here == 1 and len_w_from_here == 1 and len_b_from_here == 1 and len_b_to_here == 0
         b_capture_made = current_turn == chess.BLACK and len_b_to_here == 1 and len_b_from_here == 1 and len_w_from_here == 1 and len_w_to_here == 0
 

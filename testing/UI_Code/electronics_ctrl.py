@@ -12,8 +12,8 @@ class Electronics_Control:
     LED_START_FRAME = [0x00, 0x00, 0x00, 0x00]
     LED_END_FRAME = [0xff, 0xff, 0xff, 0xff]
 
-    PIECE_WHITE = 0b10
-    PIECE_BLACK = 0b00
+    PIECE_WHITE = 0b00
+    PIECE_BLACK = 0b10
 
     white_pos = [[False for itr1 in range(0, 8)] for itr2 in range(0, 8)]
     black_pos = [[False for itr1 in range(0, 8)] for itr2 in range(0, 8)]

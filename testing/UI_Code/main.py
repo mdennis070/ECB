@@ -16,6 +16,7 @@ from kivy.uix.label import Label
 #from kivy.properties import ObjectProperty
 #from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition 
+from kivy.cache import Cache
 
 """
 gameCtrl = Game() # give initail settings
@@ -174,20 +175,22 @@ class BoardSetupScreen(Screen):
             self.current_piece = self.current_piece + 1
             root = self.ids
 
+            Cache.remove('kv.image')
+
             if self.current_piece == 2:
-                root.img_white.source = "img/knight_white.jpg"
+                #root.img_white.source = "img/knight_white.jpg"
                 root.img_black.source = "img/knight_black.jpg"
             elif self.current_piece == 3:
-                root.img_white.source = "img/bishop_white.jpg"
+                #root.img_white.source = "img/bishop_white.jpg"
                 root.img_black.source = "img/bishop_black.jpg"
             elif self.current_piece == 4:
-                root.img_white.source = "img/rook_white.jpg"
+                #root.img_white.source = "img/rook_white.jpg"
                 root.img_black.source = "img/rook_black.jpg"
             elif self.current_piece == 5:
-                root.img_white.source = "img/queen_white.jpg"
+                #root.img_white.source = "img/queen_white.jpg"
                 root.img_black.source = "img/queen_black.jpg"
             elif self.current_piece == 6:
-                root.img_white.source = "img/king_white.jpg"
+                #root.img_white.source = "img/king_white.jpg"
                 root.img_black.source = "img/king_black.jpg"
 
             if self.current_piece == 7:

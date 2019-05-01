@@ -6,19 +6,26 @@
 		StatusBar:
 
 		ElementBox:
-		
+			
+			Label:
+				id: piece_name_label
+				size_hint_y: 0.2
+				text: "Pawn"
+	
 			BoxLayout:
 				orientation: "horizontal"
 
-				#Image:
-				#	id: img_white
-				#	source: "img/pawn_white.jpg"
-				#	allow_stretch: True
-				#	keep_ratio: True
+				Image:
+					id: img_white
+					#source: "img/pawn_white.jpg"
+					source: "img/pawn_w.png"
+					allow_stretch: True
+					keep_ratio: True
 			
 				Image:
 					id: img_black
-					source: "img/pawn_black.jpg"
+					#source: "img/pawn_black.jpg"
+					source: "img/pawn_b.png"
 					allow_stretch: True
 					keep_ratio: True
 

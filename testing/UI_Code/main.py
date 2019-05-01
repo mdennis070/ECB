@@ -39,7 +39,6 @@ class SaveGameScreen(Screen):
         now = datetime.datetime.now()
         date = "{}".format(now.strftime("%Y-%m-%d"))
         global gameCtrl
-        gameCtrl = Game()
         gameCtrl.save_game(filename, date)
         self.manager.current = "home"
 
@@ -117,6 +116,8 @@ class LoadGameScreen(Screen):
         
         if game_name != None:
             global gameCtrl
+            if gameCtrl != None:
+                del gameCtrl
             gameCtrl = Game()
             gameCtrl.load_game(str(format(game_name)))
             self.manager.current = "board_setup"
@@ -162,7 +163,10 @@ class BoardSetupScreen(Screen):
 
     def on_enter(self):
         self.clock = Clock.schedule_interval(self.clock_callback, 10 / 1000)
-        current_piece = 1
+        self.current_piece = 1
+        self.ids.img_white.source = "img/pawn_w.png"
+        self.ids.img_black.source = "img/pawn_b.png"
+        self.ids.piece_name_label.text = "Pawn"
         gameCtrl.make_start_LED_array(self.current_piece)
 
     def clock_callback(self, dt, *args):
@@ -170,28 +174,42 @@ class BoardSetupScreen(Screen):
 
         if self.current_piece < 7:
             setup = gameCtrl.check_start_up_state(self.current_piece)
+            gameCtrl.make_start_LED_array(self.current_piece)
         
         if setup:
             self.current_piece = self.current_piece + 1
             root = self.ids
 
-            Cache.remove('kv.image')
-
             if self.current_piece == 2:
                 #root.img_white.source = "img/knight_white.jpg"
-                root.img_black.source = "img/knight_black.jpg"
+                #root.img_black.source = "img/knight_black.jpg"
+                root.img_white.source = "img/knight_w.png"
+                root.img_black.source = "img/knight_b.png"
+                root.piece_name_label.text = "Kinght"
             elif self.current_piece == 3:
                 #root.img_white.source = "img/bishop_white.jpg"
-                root.img_black.source = "img/bishop_black.jpg"
+                #root.img_black.source = "img/bishop_black.jpg"
+                root.img_white.source = "img/bishop_w.png"
+                root.img_black.source = "img/bishop_b.png"
+                root.piece_name_label.text = "Bishop"
             elif self.current_piece == 4:
                 #root.img_white.source = "img/rook_white.jpg"
-                root.img_black.source = "img/rook_black.jpg"
+                #root.img_black.source = "img/rook_black.jpg"
+                root.img_white.source = "img/rook_w.png"
+                root.img_black.source = "img/rook_b.png"
+                root.piece_name_label.text = "Rook"
             elif self.current_piece == 5:
                 #root.img_white.source = "img/queen_white.jpg"
-                root.img_black.source = "img/queen_black.jpg"
+                #root.img_black.source = "img/queen_black.jpg"
+                root.img_white.source = "img/queen_w.png"
+                root.img_black.source = "img/queen_b.png"
+                root.piece_name_label.text = "Queen"
             elif self.current_piece == 6:
                 #root.img_white.source = "img/king_white.jpg"
-                root.img_black.source = "img/king_black.jpg"
+                #root.img_black.source = "img/king_black.jpg"
+                root.img_white.source = "img/king_w.png"
+                root.img_black.source = "img/king_b.png"
+                root.piece_name_label.text = "King"
 
             if self.current_piece == 7:
                 self.manager.current = "play"

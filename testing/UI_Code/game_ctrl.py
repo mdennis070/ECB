@@ -9,7 +9,7 @@ class Game:
 
     #Make board
     board = chess.Board()
-    #board = chess.Board("rnbqkbn1/4pppp/pppp4/7r/N7/5PPP/PPPPP3/R1BQKBNR w KQkq - 0 1")
+    #board = chess.Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     #board = chess.Board("r7/8/k7/8/8/8/7N/7K w KQkq - 0 1")
 
     #Make Electronics Control Class
@@ -23,6 +23,9 @@ class Game:
     ai_move = None
     ai_turn = False
     
+    white_pos = [[False for i in range(0, 8)] for j in range(0, 8)]
+    black_pos = [[False for i in range(0, 8)] for j in range(0, 8)]
+
     #Variables for initial placement and some for live_highlighting
     brightness = 3
     setup_array = [[None for i in range(0,6)] for j in range(0,2)]  #2D array holding the tuples of the locations for each type of piece (pawn, knight, bishop... as well as white and black)
@@ -109,6 +112,7 @@ class Game:
     def start_list_LED_array(self):
         #row = 0 - white, 1 - black
         #col = 0 - Pawn, 1 - Knight, 2 - Bishop, ... , 6 - King
+        self.setup_array = [[None for i in range(0,6)] for j in range(0,2)]  
         self.setup_array[0][0] =  list(self.board.pieces(chess.PAWN, chess.WHITE))
         self.setup_array[0][1] =  list(self.board.pieces(chess.KNIGHT, chess.WHITE))
         self.setup_array[0][2] =  list(self.board.pieces(chess.BISHOP, chess.WHITE))
@@ -124,20 +128,25 @@ class Game:
 
     #Place the pieces according to the chess piece layout in board()
     def make_start_LED_array(self, which_piece):
+        
+        self.clear_board_LED()
 
         for x_1 in range(0,len(self.setup_array[0][which_piece-1])):
             #setup white pieces
             tile_val = self.setup_array[0][which_piece-1][x_1]
             row = tile_val // 8
             col = tile_val % 8
-            self.LED_data[row][col] = self.color_dict["magenta"]   #white pieces
+            if self.white_pos[row][col] == False:
+                self.LED_data[row][col] = self.color_dict["magenta"]   #white pieces
+
 
         for x_2 in range(0,len(self.setup_array[1][which_piece-1])):
             #setup black pieces
             tile_val = self.setup_array[1][which_piece-1][x_2]
             row = tile_val // 8
             col = tile_val % 8
-            self.LED_data[row][col] = self.color_dict["cyan"]   #black pieces
+            if self.black_pos[row][col] == False:
+                self.LED_data[row][col] = self.color_dict["cyan"]   #black pieces
 
     #Check if all of the pieces of that specific type is placed on the board. If so, it will move onto the next type of piece after this function
     def check_start_up_state(self, which_piece):
@@ -187,6 +196,7 @@ class Game:
         game.accept(exporter)
         
     def load_game(self, filename):
+        self.board = chess.Board()
         pgn = open("./saves/{}.pgn".format(filename))
         loaded_game = chess.pgn.read_game(pgn)
         self.chess_w = loaded_game.headers["White"]
@@ -194,9 +204,12 @@ class Game:
         self.turn = loaded_game.headers["Round"]
         self.result = loaded_game.headers["Result"]
         
-        self.board.set_fen(loaded_game.headers["FEN"])
+        #self.board.set_fen(loaded_game.headers["FEN"])
+        #self.board.set_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        #print(self.board)
         for move in loaded_game.mainline_moves():
             self.board.push(move)
+
         print(self.board)
         self.start_list_LED_array()
 

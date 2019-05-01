@@ -90,6 +90,7 @@ class Game:
                 self.cpu_AI.set_level(level)
                 if settings["p2 color"]: # P2 is white
                     self.chess_w = "AI{}".format(level)
+                    self.ai_move()
                 else:
                     self.chess_b = "AI{}".format(level)
 
@@ -99,7 +100,7 @@ class Game:
             hint_on = settings["tutor on"]
             #settings["game timer"]
             #settings["move timer"]
-        self.start_list_LED_array()
+            self.start_list_LED_array()
 
     def update_settings(self, h_legal, h_illegal, h_king, h_last):
         #self.highlight_legal = h_legal
@@ -201,22 +202,21 @@ class Game:
         loaded_game = chess.pgn.read_game(pgn)
         self.chess_w = loaded_game.headers["White"]
         self.chess_b = loaded_game.headers["Black"]
-        self.turn = loaded_game.headers["Round"]
         self.result = loaded_game.headers["Result"]
         
-        #self.board.set_fen(loaded_game.headers["FEN"])
-        #self.board.set_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-        #print(self.board)
         for move in loaded_game.mainline_moves():
             self.board.push(move)
 
-        print(self.board)
         self.start_list_LED_array()
 
         if self.chess_w[0:2] == "AI":
             self.cpu_AI.set_level(int(self.chess_w[-1]))
+            if self.board.turn == chess.WHITE:
+                self.ai_move()
         elif self.chess_b[0:2] == "AI":
             self.cpu_AI.set_level(int(self.chess_b[-1]))
+            if self.board.turn == chess.BLACK:
+                self.ai_move()
         
         if self.chess_w == "P1":
             self.rotate_board = 90
@@ -325,19 +325,7 @@ class Game:
 
             self.hint_highlight = []
 
-            self.ai_move_highlight = []
-
-            if self.ai_on and not self.ai_turn:
-                self.ai_move = self.cpu_AI.AI_move(self.board)
-
-                row = self.ai_move.to_square // 8
-                col = self.ai_move.to_square % 8
-                self.ai_move_highlight.append([row, col])
-
-                row = self.ai_move.from_square // 8
-                col = self.ai_move.from_square % 8
-                self.ai_move_highlight.append([row, col])
-            
+            self.ai_move() 
 
             print(self.board)
             print("")
@@ -348,6 +336,20 @@ class Game:
                 return "Black"
 
         return "illegal"
+
+    def ai_move(self):
+        self.ai_move_highlight = []
+
+        if self.ai_on and not self.ai_turn:
+            self.ai_move = self.cpu_AI.AI_move(self.board)
+
+            row = self.ai_move.to_square // 8
+            col = self.ai_move.to_square % 8
+            self.ai_move_highlight.append([row, col])
+
+            row = self.ai_move.from_square // 8
+            col = self.ai_move.from_square % 8
+            self.ai_move_highlight.append([row, col])
 
     def assign_highlight(self):
         self.clear_board_LED()

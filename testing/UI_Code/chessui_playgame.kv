@@ -7,17 +7,25 @@
 
 		ElementBox:
 
-			Label:
-				id: turn_label
-				text: "Turn: White"
+			BoxLayout:
+				orientation: "horizontal"
+
+				Label:
+					text: "Colors:\nGreen: Legal moves for a piece\nBlue: Last move made or tile where piece was lifted from\nYellow: Illegal Move\nMagenta: Hint or CPU move\nRed: Check"		
+	
+				Label:
+					id: turn_label
+					text: "Turn: White"
 
 			Button:
 				text: "Hint"
 				size_hint_y: 0.25
+				size_hint_z: None
+				width: root.width*0.25
 				on_release: root.game_hint()
 
 			Button:
 				text: "End Turn"
-				size_hint_y: 0.25
+				size_hint_y: 0.5
 				on_release: root.end_turn()
 			

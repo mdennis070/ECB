@@ -1,3 +1,53 @@
+<PopupLabel@Label>:
+	font_size: "20sp"
+	text_size: self.size
+	valign: "middle"
+	halign: "left"
+	size_hint_y: 0.1
+
+<SimplePopup>:
+	id: pop
+	auto_dismiss: False
+	size_hint: 0.9, 0.8
+	title: "Instructions"
+
+	BoxLayout:
+		orientation: "vertical"
+
+		PopupLabel:
+			text: "Press 'end turn' at end of turn"
+
+		Label:
+			size_hint_y: 0.1
+
+		PopupLabel:
+			text: "Colors:"		
+
+		PopupLabel:
+			text: "   Green: Legal moves for a piece"		
+
+		PopupLabel:
+			text: "   Blue: Last move made or tile where piece was lifted from"		
+
+		PopupLabel:
+			text: "   Yellow: Illegal Move"		
+
+		PopupLabel:
+			text: "   Magenta: Hint or CPU move"		
+
+		PopupLabel:
+			text: "   Red: Check"		
+		
+		Label:
+			size_hint_y: 0.1
+
+		Button:
+			text: "Play"
+			font_size: "30sp"
+			size_hint_y: 0.3
+			on_press: pop.dismiss()
+
+
 <PlayGameScreen>:
 	id: screen_id_play
 
@@ -6,26 +56,26 @@
 		StatusBar:
 
 		ElementBox:
+			spacing: 30
+
+			Label:
+				id: turn_label
+				size_hint_y: 0.3
+				text: "Turn: White"
+				font_size: "60sp"
 
 			BoxLayout:
 				orientation: "horizontal"
+				size_hint_y: 0.7
+				spacing: 30
 
-				Label:
-					text: "Colors:\nGreen: Legal moves for a piece\nBlue: Last move made or tile where piece was lifted from\nYellow: Illegal Move\nMagenta: Hint or CPU move\nRed: Check"		
-	
-				Label:
-					id: turn_label
-					text: "Turn: White"
+				Button:
+					text: "Show Good Move"
+					font_size: "30sp"
+					on_release: root.game_hint()
 
-			Button:
-				text: "Hint"
-				size_hint_y: 0.25
-				size_hint_z: None
-				width: root.width*0.25
-				on_release: root.game_hint()
-
-			Button:
-				text: "End Turn"
-				size_hint_y: 0.5
-				on_release: root.end_turn()
+				Button:
+					text: "End Turn"
+					font_size: "30sp"
+					on_release: root.end_turn()
 			

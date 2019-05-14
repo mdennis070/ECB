@@ -1,8 +1,10 @@
 <SettingLabel@Label>:
 	id: label_text
+	size_hint_y: 0.2
 	text_size: self.size
 	valign: "middle"
 	halign: "left"
+	font_size: "25sp"
 
 <StartScreen_p1>:
 	id: screen_id_startP1
@@ -12,7 +14,7 @@
 		StatusBar:
 
 		ElementBox:
-			padding: 50, 50
+			padding: 50, 20
 			
 			GridLayout:
 				cols: 2
@@ -23,18 +25,20 @@
 
 				BoxLayout:
 					orientation: "horizontal"
-					size_hint_y: 0.1
+					size_hint_y: 0.2
 		
 					ToggleButton:
 						id: p1_color_white
 						group: "p1_color"
 						text: "White"
+						font_size: "30sp"
 						allow_no_selection: False
 
 					ToggleButton:
 						id: p1_color_black
 						group: "p1_color"
 						text: "Black"
+						font_size: "30sp"
 						allow_no_selection: False
 						
 				SettingLabel:
@@ -43,7 +47,7 @@
 				Slider:
 					id: slide_ai_diff
 					size_hint_x: 2.5
-					size_hint_y: 0.1
+					size_hint_y: 0.2
 					min: 1
 					max: 8
 					step: 1
@@ -53,8 +57,9 @@
 
 				ToggleButton:
 					id: tutor_on
-					size_hint_y: 0.1
+					size_hint_y: 0.2
 					text: "Enabled" if self.state == "down" else "Disabled"
+					font_size: "30sp"
 
 #				SettingLabel:
 #					text: "Player 1 Handicap"
@@ -156,27 +161,31 @@
 #						allow_no_selection: False
 #						on_press: screen_id_startP1.btn_clicked(p2=5) 
 				
-				SettingLabel:
-					text: "Game Timer\n(No Time Limit)" if slide_game_timer.value == 0 else "Game Timer\n({} min)".format(str(int(slide_game_timer.value)))
+#				SettingLabel:
+#					text: "Game Timer\n(No Time Limit)" if slide_game_timer.value == 0 else "Game Timer\n({} min)".format(str(int(slide_game_timer.value)))
+#			
+#				Slider:
+#					id: slide_game_timer
+#					size_hint_y: 0.1
+#					min: 0
+#					max: 60
+#					step: 1
+#				
+#				SettingLabel:
+#					text: "Move Timer\n(No Time Limit)" if slide_move_timer.value == 0 else "Move Timer\n({} sec)".format(str(int(slide_move_timer.value)))
+#
+#				Slider:
+#					id: slide_move_timer
+#					size_hint_y: 0.1
+#					min: 0
+#					max: 60
+#					step: 1
 			
-				Slider:
-					id: slide_game_timer
-					size_hint_y: 0.1
-					min: 0
-					max: 60
-					step: 1
-				
-				SettingLabel:
-					text: "Move Timer\n(No Time Limit)" if slide_move_timer.value == 0 else "Move Timer\n({} sec)".format(str(int(slide_move_timer.value)))
+			Label:
+				size_hint_y: 0.1
 
-				Slider:
-					id: slide_move_timer
-					size_hint_y: 0.1
-					min: 0
-					max: 60
-					step: 1
-			
 			Button:
 				text: "Play"
-				size_hint_y: 0.25
+				font_size: "30sp"
+				size_hint_y: 0.3
 				on_release: screen_id_startP1.start_game(root)

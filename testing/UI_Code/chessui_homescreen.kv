@@ -11,16 +11,18 @@
 
 			Button:
 				text: "Single Player"
+				font_size: "30sp"
 				size_hint_y: 0.25
 				on_release: root.manager.current = "start_p1"
 
 			Button:
 				text: "Multiplayer"
+				font_size: "30sp"
 				size_hint_y: 0.25
 				on_release: root.manager.current = "start_p2"
 			
 			Button:
 				text: "Load Game"
+				font_size: "30sp"
 				size_hint_y: 0.25
-				#on_release: app.stop()
 				on_release: root.manager.current = "load"

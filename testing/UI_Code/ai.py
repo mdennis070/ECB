@@ -3,6 +3,8 @@ import chess.uci
 
 class AI:
 
+    color = False;
+
     #AI Level of difficulty
     level = 1
 
@@ -34,3 +36,6 @@ class AI:
 
     def set_level(self, level_diff):
         self.level = level_diff
+
+    def set_color(self, color):
+        self.color = color

@@ -9,69 +9,62 @@
 			padding: 50, 10, 50, 50
 			spacing: 15
 
-			BoxLayout:
-				orientation: "horizontal"
-				size_hint_y: 0.4
-				padding: 0, 5
-				spacing: 15
-
-				BoxLayout:
-					orientation: "vertical"
-
-					Label:
-						siZe_hint_y: 0.1
-						text: "Player 1"
-
-					BoxLayout:
-						orientation: "horizontal"
-			
-						ToggleButton:
-							id: p1_color_white
-							group: "p1_color"
-							text: "White"
-							allow_no_selection: False
-	
-						ToggleButton:
-							id: p1_color_black
-							group: "p1_color"
-							text: "Black"
-							allow_no_selection: False
-				
-				BoxLayout:
-					orientation: "vertical"
 					
-					Label:
-						siZe_hint_y: 0.1
-						text: "Player 2"
-		
-					BoxLayout:
-						orientation: "horizontal"
-		
-						ToggleButton:
-							id: p2_color_white
-							group: "p2_color"
-							text: "White"
-							allow_no_selection: False
-
-						ToggleButton:
-							id: p2_color_black
-							group: "p2_color"
-							text: "Black"
-							allow_no_selection: False
 			
 			GridLayout:
 				cols: 2
 				spacing: 5
-				size_hint_y: 0.4
+				size_hint_y: 0.6
 				
+				SettingLabel:
+					text: "Player 1"
+
+				BoxLayout:
+					orientation: "horizontal"
+			
+					ToggleButton:
+						id: p1_color_white
+						group: "p1_color"
+						text: "White"
+						font_size: "30sp"
+						allow_no_selection: False
+	
+					ToggleButton:
+						id: p1_color_black
+						group: "p1_color"
+						text: "Black"
+						font_size: "30sp"
+						allow_no_selection: False
+
+				SettingLabel:
+					text: "Player 2"
+		
+				BoxLayout:
+					orientation: "horizontal"
+	
+					ToggleButton:
+						id: p2_color_white
+						group: "p2_color"
+						text: "White"
+						font_size: "30sp"
+						allow_no_selection: False
+
+					ToggleButton:
+						id: p2_color_black
+						group: "p2_color"
+						text: "Black"
+						font_size: "30sp"
+						allow_no_selection: False
+
 				SettingLabel:
 					text: "Tutor"
 
 				ToggleButton:
 					id: tutor_on
 					size_hint_x: 2.5
-					size_hint_y: 0.1
+					#size_hint_y: 0.2
 					text: "Enabled" if self.state == "down" else "Disabled"
+					font_size: "30sp"
 
 #				SettingLabel:
 #					text: "Player 1 Handicap"
@@ -174,26 +167,28 @@
 #						allow_no_selection: False
 #						on_press: screen_id_startP2.btn_clicked(p2=5)
 				
-				SettingLabel:
-					text: "Game Timer\n(No Time Limit)" if slide_game_timer.value == 0 else "Game Timer\n({} min)".format(str(int(slide_game_timer.value)))
-			
-				Slider:
-					id: slide_game_timer
-					size_hint_y: 0.1
-					min: 0
-					max: 60
-					step: 1
-				
-				SettingLabel:
-					text: "Move Timer\n(No Time Limit)" if slide_move_timer.value == 0 else "Move Timer\n({} sec)".format(str(int(slide_move_timer.value)))
+#				SettingLabel:
+#					text: "Game Timer\n(No Time Limit)" if slide_game_timer.value == 0 else "Game Timer\n({} min)".format(str(int(slide_game_timer.value)))
+#			
+#				Slider:
+#					id: slide_game_timer
+#					size_hint_y: 0.1
+#					min: 0
+#					max: 60
+#					step: 1
+#				
+#				SettingLabel:
+#					text: "Move Timer\n(No Time Limit)" if slide_move_timer.value == 0 else "Move Timer\n({} sec)".format(str(int(slide_move_timer.value)))
+#
+#				Slider:
+#					id: slide_move_timer
+#					size_hint_y: 0.1
+#					min: 0
+#					max: 60
+#					step: 1
 
-				Slider:
-					id: slide_move_timer
-					size_hint_y: 0.1
-					min: 0
-					max: 60
-					step: 1
 			Button:
 				text: "Play"
+				font_size: "30sp"
 				size_hint_y: 0.2
 				on_release: screen_id_startP2.start_game(root)

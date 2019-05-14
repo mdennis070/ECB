@@ -18,7 +18,7 @@ class Game:
     Move_validation = move_val()
 
     cpu_AI = AI()
-    hint_AI = AI(8)
+    hint_AI = AI(4)
     ai_on = False
     ai_move = None
     ai_turn = False
@@ -90,11 +90,17 @@ class Game:
                 self.cpu_AI.set_level(level)
                 if settings["p2 color"]: # P2 is white
                     self.chess_w = "AI{}".format(level)
-                    self.ai_move()
+                    self.cpu_AI.set_color(True)
+                    self.ai_make_move()
                 else:
+                    self.cpu_AI.set_color(False)
                     self.chess_b = "AI{}".format(level)
 
             #rotate board based on p1 color
+            if settings["p1 color"]:
+                self.rotate_board = 90
+            else:
+                self.rotate_board = 270
 
 
             hint_on = settings["tutor on"]
@@ -151,7 +157,7 @@ class Game:
 
     #Check if all of the pieces of that specific type is placed on the board. If so, it will move onto the next type of piece after this function
     def check_start_up_state(self, which_piece):
-        [self.white_pos, self.black_pos] = self.Electronics_control.refresh_board(self.LED_data, self.brightness, 90)
+        [self.white_pos, self.black_pos] = self.Electronics_control.refresh_board(self.LED_data, self.brightness, self.rotate_board)
 
         #print(len(self.setup_array[0][which_piece-1]))
         for x_1 in range(0, len(self.setup_array[0][which_piece-1])):
@@ -211,12 +217,14 @@ class Game:
 
         if self.chess_w[0:2] == "AI":
             self.cpu_AI.set_level(int(self.chess_w[-1]))
+            self.cpu_AI.set_color(True)
             if self.board.turn == chess.WHITE:
-                self.ai_move()
+                self.ai_make_move()
         elif self.chess_b[0:2] == "AI":
             self.cpu_AI.set_level(int(self.chess_b[-1]))
+            self.cpu_AI.set_color(False)
             if self.board.turn == chess.BLACK:
-                self.ai_move()
+                self.ai_make_move()
         
         if self.chess_w == "P1":
             self.rotate_board = 90
@@ -325,7 +333,8 @@ class Game:
 
             self.hint_highlight = []
 
-            self.ai_move() 
+            if self.ai_on and not self.ai_turn:
+                self.ai_make_move() 
 
             print(self.board)
             print("")
@@ -337,19 +346,19 @@ class Game:
 
         return "illegal"
 
-    def ai_move(self):
+    def ai_make_move(self):
         self.ai_move_highlight = []
+        self.ai_move = self.cpu_AI.AI_move(self.board)
 
-        if self.ai_on and not self.ai_turn:
-            self.ai_move = self.cpu_AI.AI_move(self.board)
+        row = self.ai_move.to_square // 8
+        col = self.ai_move.to_square % 8
+        self.ai_move_highlight.append([row, col])
 
-            row = self.ai_move.to_square // 8
-            col = self.ai_move.to_square % 8
-            self.ai_move_highlight.append([row, col])
+        row = self.ai_move.from_square // 8
+        col = self.ai_move.from_square % 8
+        self.ai_move_highlight.append([row, col])
 
-            row = self.ai_move.from_square // 8
-            col = self.ai_move.from_square % 8
-            self.ai_move_highlight.append([row, col])
+        print("ai move: {}".format(self.ai_move))
 
     def assign_highlight(self):
         self.clear_board_LED()

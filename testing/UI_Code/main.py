@@ -1,5 +1,6 @@
 from game_ctrl import Game
 
+from os import remove
 from os import listdir
 from os.path import isfile, join
 from math import ceil
@@ -8,15 +9,12 @@ import datetime
 import kivy
 from kivy.app import App
 from kivy.clock import Clock
-#from kivy.uix.gridlayout import GridLayout
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.label import Label
-#from kivy.uix.popup import Popup
-#from kivy.properties import ObjectProperty
-#from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition 
-from kivy.cache import Cache
+#from kivy.cache import Cache
+from kivy.uix.popup import Popup
 
 """
 gameCtrl = Game() # give initail settings
@@ -27,6 +25,9 @@ gameCtrl.refresh_board() returns board, time left for each player
 """
 gameCtrl = None
 screen_list = []
+
+class SimplePopup(Popup):
+    pass
 
 class SaveGameScreen(Screen):
     
@@ -50,6 +51,8 @@ class PlayGameScreen(Screen):
 
     def on_enter(self):
         self.clock = Clock.schedule_interval(self.clock_callback, 10 / 1000)
+        pop = SimplePopup()
+        pop.open()
 
     def clock_callback(self, dt):
         global gameCtrl
@@ -82,25 +85,26 @@ class LoadGameScreen(Screen):
 
         saved_games = self.list_games()
         saved_games.sort()
+        saved_games = saved_games[::-1]
+        if len(saved_games) > 6:
+            saved_games = saved_games[0:6]
         count = 0
         for game in saved_games:
             game_name = game[:-4]
-            bttn2 = ToggleButton(size_hint_y=0.2, group="g", allow_no_selection=False)
+            bttn2 = ToggleButton(size_hint_y=0.3, group="g", allow_no_selection=False)
             bttn2.text = str(game_name)
+            bttn2.font_size = "25sp"
             if count == 0:
                 bttn2.state = "down"
             self.ids.table.add_widget(bttn2)
             count = count + 1
 
-        spaces = len(saved_games) % 3
+        spaces = len(saved_games) % 2
         if spaces == 1:
             self.ids.table.add_widget(Label(text="", size_hint_y=0.2))
-            self.ids.table.add_widget(Label(text="", size_hint_y=0.2))
-        elif spaces == 2:
-            self.ids.table.add_widget(Label(text="", size_hint_y=0.2))
 
-        y_spacing = 1 -  0.2*ceil(len(saved_games) / 3)
-        for itr in range(0, 3):
+        y_spacing = 1 -  0.3*ceil(len(saved_games) / 2)
+        for itr in range(0, 2):
             self.ids.table.add_widget(Label(text="", size_hint_y=y_spacing))
 
     def list_games(self):
@@ -121,6 +125,7 @@ class LoadGameScreen(Screen):
             gameCtrl = Game()
             gameCtrl.load_game(str(format(game_name)))
             self.manager.current = "board_setup"
+            #remove("saves/{}.pgn".format(game_name)) #os.remove()
         
 
 class SettingsScreen(Screen):
@@ -239,8 +244,8 @@ class StartScreen_p1(Screen):
         root.p1_color_black.state = "normal"
         root.slide_ai_diff.value = 3
         root.tutor_on.state = "down"
-        root.slide_game_timer.value = 0
-        root.slide_move_timer.value = 0
+        #root.slide_game_timer.value = 0
+        #root.slide_move_timer.value = 0
 
     def start_game(self, *args):
         root = args[0]
@@ -248,21 +253,15 @@ class StartScreen_p1(Screen):
         settings = {}
         settings["num players"] = 1
         settings["p1 color"] = root.ids.p1_color_white.state == "down"
-        settings["p2 color"] = None
+        settings["p2 color"] = not settings["p1 color"]
         settings["ai diff"] = int(root.ids.slide_ai_diff.value)
         settings["tutor on"] = root.ids.tutor_on.state == "down"
-        settings["game timer"] = root.ids.slide_game_timer.value
-        settings["move timer"] = root.ids.slide_move_timer.value
+        #settings["game timer"] = root.ids.slide_game_timer.value
+        #settings["move timer"] = root.ids.slide_move_timer.value
         
         global gameCtrl
         gameCtrl = Game(settings)
         self.manager.current = "board_setup"
-
-    def btn_clicked(self, p1=0, p2=0):
-        if p1 != 0:
-            self.handicap[0] = p1
-        elif p2 != 0:
-            self.handicap[1] = p2
 
 class StartScreen_p2(Screen):
     handicap = [None, None]
@@ -280,8 +279,8 @@ class StartScreen_p2(Screen):
         root.p2_color_white.state = "normal"
         root.p2_color_black.state = "down"
         root.tutor_on.state = "down"
-        root.slide_game_timer.value = 0
-        root.slide_move_timer.value = 0
+        #root.slide_game_timer.value = 0
+        #root.slide_move_timer.value = 0
 
     def start_game(self, *args):
         root = args[0].ids
@@ -298,18 +297,13 @@ class StartScreen_p2(Screen):
         settings["p2 color"] = not settings["p1 color"]
         settings["ai diff"] = None
         settings["tutor on"] = root.tutor_on.state == "down"
-        settings["game timer"] = root.slide_game_timer.value
-        settings["move timer"] = root.slide_move_timer.value
+        #settings["game timer"] = root.slide_game_timer.value
+        #settings["move timer"] = root.slide_move_timer.value
         
         global gameCtrl
         gameCtrl = Game(settings)
         self.manager.current = "board_setup"
 
-    def btn_clicked(self, p1=0, p2=0):
-        if p1 != 0:
-            self.handicap[0] = p1
-        elif p2 != 0:
-            self.handicap[1] = p2
 
 class HomeScreen(Screen):
 

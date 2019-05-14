@@ -1,10 +1,10 @@
 [Event "Chess Game"]
 [Site "?"]
-[Date "2019-04-30"]
+[Date "2019-05-01"]
 [Round "True"]
-[White "P1"]
-[Black "P2"]
+[White "AI3"]
+[Black "P1"]
 [Result "*"]
 
-1. b4 b5 *
+1. d4 b5 *
 

@@ -9,6 +9,7 @@ import datetime
 import kivy
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.label import Label
@@ -25,6 +26,13 @@ gameCtrl.refresh_board() returns board, time left for each player
 """
 gameCtrl = None
 screen_list = []
+
+class HelpIcon(Button):
+
+    def open_help(self):
+        pop = SimplePopup()
+        pop.open()
+        
 
 class SimplePopup(Popup):
     pass
@@ -186,32 +194,22 @@ class BoardSetupScreen(Screen):
             root = self.ids
 
             if self.current_piece == 2:
-                #root.img_white.source = "img/knight_white.jpg"
-                #root.img_black.source = "img/knight_black.jpg"
                 root.img_white.source = "img/knight_w.png"
                 root.img_black.source = "img/knight_b.png"
                 root.piece_name_label.text = "Kinght"
             elif self.current_piece == 3:
-                #root.img_white.source = "img/bishop_white.jpg"
-                #root.img_black.source = "img/bishop_black.jpg"
                 root.img_white.source = "img/bishop_w.png"
                 root.img_black.source = "img/bishop_b.png"
                 root.piece_name_label.text = "Bishop"
             elif self.current_piece == 4:
-                #root.img_white.source = "img/rook_white.jpg"
-                #root.img_black.source = "img/rook_black.jpg"
                 root.img_white.source = "img/rook_w.png"
                 root.img_black.source = "img/rook_b.png"
                 root.piece_name_label.text = "Rook"
             elif self.current_piece == 5:
-                #root.img_white.source = "img/queen_white.jpg"
-                #root.img_black.source = "img/queen_black.jpg"
                 root.img_white.source = "img/queen_w.png"
                 root.img_black.source = "img/queen_b.png"
                 root.piece_name_label.text = "Queen"
             elif self.current_piece == 6:
-                #root.img_white.source = "img/king_white.jpg"
-                #root.img_black.source = "img/king_black.jpg"
                 root.img_white.source = "img/king_w.png"
                 root.img_black.source = "img/king_b.png"
                 root.piece_name_label.text = "King"
@@ -224,9 +222,6 @@ class BoardSetupScreen(Screen):
     def on_leave(self):
         screen_list.append(self.name)
         self.clock.cancel()
-
-    def btn_skip(self, root):
-        self.manager.current = "play"
 
 class StartScreen_p1(Screen):
 

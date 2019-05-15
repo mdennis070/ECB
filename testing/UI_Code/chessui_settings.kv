@@ -4,12 +4,18 @@
 	BaseScreen:
 	
 		StatusBar:
+			Label:
+
+			QuitIcon:
 
 		ElementBox:
 			spacing: 10
 
 			GridLayout:
 				cols: 2
+				size_hint_y: 0.7
+				cols_minimum: {0:600, 1:30}
+				col_force_default: True
 
 				SettingLabel:
 					text: "Tile Highlighting"
@@ -47,8 +53,6 @@
 					id: sw5
 					active: True
 
-			Label:
-
 			BoxLayout:
 				orientation: "horizontal"
 				spacing: 20
@@ -56,8 +60,10 @@
 
 				Button:
 					text: "Back"
+					font_size: "30sp"
 					on_release: root.btn_back()
 			
 				Button:
 					text: "Save Settings"
+					font_size: "30sp"
 					on_release: root.btn_save()

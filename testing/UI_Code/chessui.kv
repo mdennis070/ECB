@@ -19,8 +19,54 @@
 	size_hint: None, None
 	width: self.parent.width
 	height: self.width
-	center_x: self.parent.center_x
+	center_x: self.parent.center_x - (self.parent.width * 0)
 	center_y: self.parent.center_y + (self.height * 0.01)
+
+<BackIcon@Button>:
+	size_hint_x: None 
+	size_hint_y: 1.0
+	width: self.height
+	on_release: root.parent.parent.parent.manager.current = "home"
+
+	ButtonImage:
+		source: "img/back_icon.png"
+
+<HelpIcon>:
+	size_hint_x: None 
+	size_hint_y: 1.0
+	width: self.height
+	on_release: root.open_help()
+
+	ButtonImage:
+		source: "img/help_icon.png"
+
+<SettingIcon@Button>:
+	size_hint_x: None 
+	size_hint_y: 1.0
+	width: self.height
+	on_release: root.parent.parent.parent.manager.current = "settings"
+	
+	ButtonImage:
+		source: "img/setting_icon.png"
+
+<SaveIcon@Button>:
+	size_hint_x: None 
+	size_hint_y: 1.0
+	width: self.height
+	on_release: root.parent.parent.parent.manager.current = "save"
+	
+	ButtonImage:
+		source: "img/save_icon.png"
+
+<QuitIcon@Button>:
+	size_hint_x: None 
+	size_hint_y: 1.0
+	width: self.height
+	on_release: app.stop()
+	
+	ButtonImage:
+		source: "img/quit_icon.png"
+
 
 <StatusBar@BoxLayout>:
 	orientation: "horizontal"
@@ -35,61 +81,10 @@
 			pos: self.pos
 			size: self.size
 
-	Label:
 
-	#Image:
-	#	source: "img/brightness_med_icon.png"
-	#	size_hint_x: None 
-	#	size_hint_y: 1.0
-	#	width: self.height
-	#	keep_ratio: True
-	
-	#Image:
-	#	source: "img/battery_20_icon.png"
-	#	size_hint_x: None 
-	#	size_hint_y: 1.0
-	#	width: self.height
-	#	keep_ratio: True
 
-	Button:
-		size_hint_x: None 
-		size_hint_y: 1.0
-		width: self.height
-		on_release: root.parent.parent.manager.current = "save"
-	
-		ButtonImage:
-			source: "img/save_icon.png"
-	
-	Label:
-		size_hint_x: None
-		size_hint_y: 1.0
-		width: self.height*0.5
-	#Button:
-	#	size_hint_x: None 
-	#	size_hint_y: 1.0
-	#	width: self.height
-	#	on_release: root.parent.parent.manager.current = "home"
-	#
-	#	ButtonImage:
-	#		source: "img/home_icon.png"
 
-	Button:
-		size_hint_x: None 
-		size_hint_y: 1.0
-		width: self.height
-		on_release: root.parent.parent.manager.current = "settings"
-	
-		ButtonImage:
-			source: "img/setting_icon.png"
 		
-	Button:
-		size_hint_x: None 
-		size_hint_y: 1.0
-		width: self.height
-		on_release: app.stop()
-	
-		ButtonImage:
-			source: "img/quit_icon.png"
 		
 
 

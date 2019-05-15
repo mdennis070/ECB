@@ -25,7 +25,7 @@ gameCtrl.refresh_board() returns board, time left for each player
 
 """
 gameCtrl = None
-screen_list = []
+screen_list = ['home']
 
 class HelpIcon(Button):
 
@@ -35,11 +35,27 @@ class HelpIcon(Button):
         
 
 class SimplePopup(Popup):
+    
+    def dismiss_pop(self):
+        self.dismiss()
+        pop = ColorPopup()
+        pop.open()
+
+class ColorPopup(Popup):
     pass
+
+class EndgamePopup(Popup):
+    pass
+
+class ErrorPopup(Popup):
+    
+    def set_text(self, text):
+        self.ids.warning_message.text = text
 
 class SaveGameScreen(Screen):
     
     def on_enter(self):
+        screen_list.append(self.name)
         root = self.ids
         now = datetime.datetime.now()
         root.textbox_filename.text = "{}".format(now.strftime("%Y-%m-%d %I:%M%p"))
@@ -51,16 +67,16 @@ class SaveGameScreen(Screen):
         gameCtrl.save_game(filename, date)
         self.manager.current = "home"
 
-    def on_leave(self):
-        screen_list.append(self.name)
-
-
 class PlayGameScreen(Screen):
 
     def on_enter(self):
         self.clock = Clock.schedule_interval(self.clock_callback, 10 / 1000)
-        pop = SimplePopup()
-        pop.open()
+
+        if screen_list[-1] == "board_setup":
+            pop = SimplePopup()
+            pop.open()
+        
+        screen_list.append(self.name)
 
     def clock_callback(self, dt):
         global gameCtrl
@@ -68,13 +84,24 @@ class PlayGameScreen(Screen):
         gameCtrl.assign_highlight()
 
     def on_leave(self):
-        screen_list.append(self.name)
         self.clock.cancel()
 
     def end_turn(self):
         global gameCtrl
-        turn = gameCtrl.end_turn_move()
-        self.ids.turn_label.text = "Turn: {}".format(turn)
+        turn, message = gameCtrl.end_turn_move()
+        if turn == "illegal":
+            pop = ErrorPopup()
+            pop.open()
+            pop.set_text(message)
+        else:
+            game_over = gameCtrl.check_end_game()
+            self.ids.turn_label.text = "Turn: {}".format(turn)
+
+            if game_over:
+                self.manager.current = "home"
+                pop = EndgamePopup()
+                pop.open()
+
     
     def game_hint(self):
         global gameCtrl
@@ -85,10 +112,8 @@ class LoadGameScreen(Screen):
     def __init__(self, **kwargs):
         super(Screen, self).__init__(**kwargs)	
 
-    def on_leave(self):
-        screen_list.append(self.name)
-
     def on_enter(self, *args):
+        screen_list.append(self.name)
         self.ids.table.clear_widgets()
 
         saved_games = self.list_games()
@@ -141,9 +166,8 @@ class SettingsScreen(Screen):
     def __init__(self, **kwargs):
         super(Screen, self).__init__(**kwargs)	
 
-    def on_leave(self):
-        #screen_list.append(self.name)
-        pass
+    def on_enter(self):
+        screen_list.append(self.name)
 
     def switch(self, root):
         val = not root.ids.sw1.active
@@ -153,7 +177,7 @@ class SettingsScreen(Screen):
         root.ids.sw5.disabled = val
 
     def btn_back(self):
-        self.manager.current = screen_list[-1]
+        self.manager.current = screen_list[-2]
 
     def btn_save(self):
         root = self.ids
@@ -165,9 +189,9 @@ class SettingsScreen(Screen):
 
         global gameCtrl
         if sw1_val:
-            gameCtrl.update_settings(sw2_val, sw3_val, sw4_val, sw5_val)
+            gameCtrl.update_settings(sw1_val, sw2_val, sw3_val, sw4_val, sw5_val)
         else:
-            gameCtrl.update_settings(False, False, False, False)
+            gameCtrl.update_settings(False, False, False, False, False)
         self.btn_back()
 
 class BoardSetupScreen(Screen):
@@ -175,6 +199,8 @@ class BoardSetupScreen(Screen):
     current_piece = 1
 
     def on_enter(self):
+        screen_list.append(self.name)
+
         self.clock = Clock.schedule_interval(self.clock_callback, 10 / 1000)
         self.current_piece = 1
         self.ids.img_white.source = "img/pawn_w.png"
@@ -220,7 +246,6 @@ class BoardSetupScreen(Screen):
                 gameCtrl.make_start_LED_array(self.current_piece)
 
     def on_leave(self):
-        screen_list.append(self.name)
         self.clock.cancel()
 
 class StartScreen_p1(Screen):
@@ -230,10 +255,8 @@ class StartScreen_p1(Screen):
     def __init__(self, **kwargs):
         super(Screen, self).__init__(**kwargs)	
 
-    def on_leave(self):
-        screen_list.append(self.name)
-
     def on_enter(self, *args):
+        screen_list.append(self.name)
         root = self.ids
         root.p1_color_white.state = "down"
         root.p1_color_black.state = "normal"
@@ -264,10 +287,8 @@ class StartScreen_p2(Screen):
     def __init__(self, **kwargs):
         super(Screen, self).__init__(**kwargs)	
 
-    def on_leave(self):
-        screen_list.append(self.name)
-
     def on_enter(self, *args):
+        screen_list.append(self.name)
         root = self.ids
         root.p1_color_white.state = "down"
         root.p1_color_black.state = "normal"
@@ -302,7 +323,7 @@ class StartScreen_p2(Screen):
 
 class HomeScreen(Screen):
 
-    def on_leave(self):
+    def on_enter(self):
         screen_list.append(self.name)
 
 class ChessUIApp(App):

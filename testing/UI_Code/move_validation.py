@@ -89,9 +89,9 @@ class move_validation:
 
         """capture to uci format"""
         if w_capture_made or b_capture_made:
-            if current_turn == chess.WHITE:
+            if current_turn == chess.WHITE and w_moved_to_here == b_moved_from_here:
                 capture_list = chess.Move(w_moved_from_here[0], w_moved_to_here[0])
-            else:
+            elif b_moved_to_here == w_moved_from_here:
                 capture_list = chess.Move(b_moved_from_here[0], b_moved_to_here[0])
             #
         elif w_move or b_move:

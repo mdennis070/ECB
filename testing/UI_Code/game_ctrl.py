@@ -59,7 +59,8 @@ class Game:
 
     legal_move_highlight = []   #holds locations to highlight for legal move highilighting
     last_move_highlight = []    #holds locations to highlight for last move highlighting
-    illegal_array   = []      #will hold array of two positions to show move from and move to square and highlight them yellow
+    illegal_array = []          #will hold array of two positions to show move from and move to square and highlight them yellow
+    wrong_move_array = []
     king_check_highlight = []   #holds locations to highlight for king check highlighting
     castle_move_highlight = []  #holds locations to highlight for castle (if castling was done)
     hint_highlight = []
@@ -73,7 +74,7 @@ class Game:
 
     #movement
     move_buffer = None
-
+    warning_message = "Illegal Move"
 
     def __init__(self, settings=None):
         if settings != None:
@@ -108,12 +109,12 @@ class Game:
             #settings["move timer"]
             self.start_list_LED_array()
 
-    def update_settings(self, h_legal, h_illegal, h_king, h_last):
-        #self.highlight_legal = h_legal
-        #self.highlight_illegal = h_illegal
-        #self.highlight_king = h_king
-        #self.highlight_last = h_last
-        pass
+    def update_settings(self, h_hint, h_legal, h_illegal, h_king, h_last):
+        self.highlight_hint = h_hint
+        self.highlight_legal = h_legal
+        self.highlight_illegal = h_illegal
+        self.highlight_king = h_king
+        self.highlight_last = h_last
 
     #Initial Board setup functions
     def start_list_LED_array(self):
@@ -192,7 +193,15 @@ class Game:
         # - time left black 00010
         game = chess.pgn.Game()
         game = chess.pgn.Game.from_board(self.board) #updates the board with the moves made
-        game.headers["Event"] = "Chess Game"
+        
+        settings_str = ""
+        settings_str = settings_str + str(self.highlight_hint)[0]
+        settings_str = settings_str + str(self.highlight_legal)[0]
+        settings_str = settings_str + str(self.highlight_illegal)[0]
+        settings_str = settings_str + str(self.highlight_king)[0]
+        settings_str = settings_str + str(self.highlight_last)[0]
+        
+        game.headers["Event"] = settings_str
         game.headers["Date"] = date
         game.headers["White"] = self.chess_w
         game.headers["Black"] = self.chess_b
@@ -209,6 +218,13 @@ class Game:
         self.chess_w = loaded_game.headers["White"]
         self.chess_b = loaded_game.headers["Black"]
         self.result = loaded_game.headers["Result"]
+
+        settings_str = loaded_game.headers["Event"]
+        self.highlight_hint = settings_str[0] == 'T'
+        self.highlight_legal = settings_str[1] == 'T' and self.highlight_hint
+        self.highlight_illegal = settings_str[2] == 'T' and self.highlight_hint
+        self.highlight_king = settings_str[3] == 'T' and self.highlight_hint
+        self.highlight_last = settings_str[4] == 'T' and self.highlight_hint
         
         for move in loaded_game.mainline_moves():
             self.board.push(move)
@@ -272,7 +288,7 @@ class Game:
         #highlight square that's lifted (blue)
         row = self.selected_piece // 8
         col = self.selected_piece % 8
-        self.legal_move_highlight.append( [row, col, self.color_dict["blue"]])  #Add the lifted piece's location to the lifted piece's LED highlighting
+        self.legal_move_highlight.append( [row, col, self.color_dict["white"]])  #Add the lifted piece's location to the lifted piece's LED highlighting
 
         #show legal moves (green)
         self.array_legal_moves = self.Move_validation.piece_legal_moves(self.board, self.selected_piece)
@@ -340,11 +356,11 @@ class Game:
             print("")
 
             if self.board.turn:
-                return "White"
+                return ["White", None]
             else:
-                return "Black"
+                return ["Black", None]
 
-        return "illegal"
+        return ["illegal", self.warning_message]
 
     def ai_make_move(self):
         self.ai_move_highlight = []
@@ -407,8 +423,30 @@ class Game:
             for x in range(0, len(self.illegal_array)):
                 self.LED_data[self.illegal_array[x][0]][self.illegal_array[x][1]] = self.color_dict["yellow"]
 
+        #Wrong move made
+        for x in range(0, len(self.wrong_move_array)):
+            tile_val = self.wrong_move_array[x]
+            row = tile_val // 8
+            col = tile_val % 8
+
+            my_color = self.color_dict["yellow"]
+            if self.board.turn and not self.black_pos[row][col]: # whites turn
+                self.LED_data[row][col] = my_color
+            elif not self.board.turn and not self.white_pos[row][col]: # blacks turn
+                self.LED_data[row][col] = my_color
+
         [self.white_pos, self.black_pos] = self.Electronics_control.refresh_board(self.LED_data, self.brightness, self.rotate_board)
 
+    def wrong_color_moved(self):
+        not_turn = not self.board.turn
+
+        self.wrong_move_array = []
+        self.wrong_move_array.extend(list(self.board.pieces(chess.PAWN, not_turn)))
+        self.wrong_move_array.extend(list(self.board.pieces(chess.KNIGHT, not_turn)))
+        self.wrong_move_array.extend(list(self.board.pieces(chess.BISHOP, not_turn)))
+        self.wrong_move_array.extend(list(self.board.pieces(chess.ROOK, not_turn)))
+        self.wrong_move_array.extend(list(self.board.pieces(chess.QUEEN, not_turn)))
+        self.wrong_move_array.extend(list(self.board.pieces(chess.KING, not_turn)))
 
     def live_move_highlight(self):
         [self.selected_piece, self.move_made, castle] = self.Move_validation.determine_move_made(self.board, self.white_pos, self.black_pos)
@@ -420,6 +458,9 @@ class Game:
         #self.castle_state_check()  #checks if there's castling in progress
         self.legal_move_highlight = [] #reset the array to add new legal moves into legal_move_highlight array
         self.illegal_array = []
+
+        self.wrong_color_moved()
+
         if (self.selected_piece != None and self.castling_state == False):    #piece is lifted    (When swapping or killing a piece no square will be highlighted; the physical process of replacing and removing a piece on the board)
 
             self.piece_lifted() #logic to load legal_move highlight squares
@@ -428,6 +469,7 @@ class Game:
 
             self.illegal_move = self.Move_validation.is_legal_move(self.board, self.move_made)  #check if move was illegal
             if(self.illegal_move == False or (self.ai_on and self.ai_turn and self.move_made != self.ai_move)):  #It is an illegal move
+                self.warning_message = "Illegal Move Made"
                 self.move_buffer = None
                 #Do not push the move (don't update the board with the illegal move)
                 #highlight yellow (from and to squares)
@@ -450,4 +492,9 @@ class Game:
         else:
             # if no move was made
             self.move_buffer = None
-        
+            self.warning_message = "No Move Made"
+       
+    def check_end_game(self):
+        return self.board.is_game_over()
+
+

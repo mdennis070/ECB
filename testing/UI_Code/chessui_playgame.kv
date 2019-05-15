@@ -1,9 +1,95 @@
 <PopupLabel@Label>:
-	font_size: "20sp"
+	font_size: "25sp"
 	text_size: self.size
 	valign: "middle"
 	halign: "left"
-	size_hint_y: 0.1
+	size_hint_y: 0.2
+
+<EndgamePopup>:
+	id: pop2
+	auto_dismiss: False
+	size_hint: 0.9, 0.8
+	title: "Game Over"
+
+	BoxLayout:
+		orientation: "vertical"
+
+		Label:
+			text: "GAME OVER"
+			font_size: "60sp"
+			size_hint_y: 0.7
+
+
+		Button:
+			text: "Back to Home"
+			font_size: "30sp"
+			size_hint_y: 0.3
+			on_press: pop2.dismiss()
+
+<ErrorPopup>:
+	id: pop4
+	auto_dismiss: False
+	size_hint: 0.9, 0.8
+	title: "Illegal Move Made"
+
+	BoxLayout:
+		orientation: "vertical"
+
+		Label:
+			id: warning_message
+			text: "No"
+			font_size: "60sp"
+			size_hint_y: 0.7
+
+
+		Button:
+			text: "Back to Game"
+			font_size: "30sp"
+			size_hint_y: 0.3
+			on_press: pop4.dismiss()
+
+<ColorPopup>:
+	id: pop3
+	auto_dismiss: False
+	size_hint: 0.9, 0.8
+	title: "Instructions - Colors"
+
+	BoxLayout:
+		orientation: "vertical"
+
+		PopupLabel:
+			text: "Colors:"		
+
+		GridLayout:
+			size_hint_y: 0.4
+			cols: 2		
+	
+			PopupLabel:
+				text: "   Green: Legal moves"		
+
+			PopupLabel:
+				text: "   Blue: Last move made"
+
+			PopupLabel:
+				text: "   Yellow: Illegal Move"		
+
+			PopupLabel:
+				text: "   Magenta: Hint or CPU move"		
+
+			PopupLabel:
+				text: "   Red: Check"
+
+			PopupLabel:
+				text: "   White: Piece lifted"
+		
+		Label:
+			size_hint_y: 0.1
+
+		Button:
+			text: "Play"
+			font_size: "30sp"
+			size_hint_y: 0.3
+			on_press: pop3.dismiss()
 
 <SimplePopup>:
 	id: pop
@@ -21,31 +107,16 @@
 			size_hint_y: 0.1
 
 		PopupLabel:
-			text: "Colors:"		
+			text: "Place piece on center of square when making move"
 
-		PopupLabel:
-			text: "   Green: Legal moves for a piece"		
-
-		PopupLabel:
-			text: "   Blue: Last move made or tile where piece was lifted from"		
-
-		PopupLabel:
-			text: "   Yellow: Illegal Move"		
-
-		PopupLabel:
-			text: "   Magenta: Hint or CPU move"		
-
-		PopupLabel:
-			text: "   Red: Check"		
-		
 		Label:
-			size_hint_y: 0.1
+			size_hint_y: 0.2
 
 		Button:
-			text: "Play"
+			text: "Next Page"
 			font_size: "30sp"
 			size_hint_y: 0.3
-			on_press: pop.dismiss()
+			on_press: pop.dismiss_pop()
 
 
 <PlayGameScreen>:

@@ -98,6 +98,7 @@ class PlayGameScreen(Screen):
             self.ids.turn_label.text = "Turn: {}".format(turn)
 
             if game_over:
+                #gameCtrl.clear_board_LED()
                 self.manager.current = "home"
                 pop = EndgamePopup()
                 pop.open()
@@ -222,7 +223,7 @@ class BoardSetupScreen(Screen):
             if self.current_piece == 2:
                 root.img_white.source = "img/knight_w.png"
                 root.img_black.source = "img/knight_b.png"
-                root.piece_name_label.text = "Kinght"
+                root.piece_name_label.text = "Knight"
             elif self.current_piece == 3:
                 root.img_white.source = "img/bishop_w.png"
                 root.img_black.source = "img/bishop_b.png"
@@ -276,8 +277,10 @@ class StartScreen_p1(Screen):
         settings["tutor on"] = root.ids.tutor_on.state == "down"
         #settings["game timer"] = root.ids.slide_game_timer.value
         #settings["move timer"] = root.ids.slide_move_timer.value
-        
+
         global gameCtrl
+        #if gameCtrl != None:
+        #    del gameCtrl     
         gameCtrl = Game(settings)
         self.manager.current = "board_setup"
 
@@ -316,7 +319,12 @@ class StartScreen_p2(Screen):
         #settings["game timer"] = root.slide_game_timer.value
         #settings["move timer"] = root.slide_move_timer.value
         
+        # trying to fix problem where new game is not created
         global gameCtrl
+        #if gameCtrl != None:
+        #    print("Game existed")
+        #    gameCtrl.reset_board()
+        #    del gameCtrl     
         gameCtrl = Game(settings)
         self.manager.current = "board_setup"
 

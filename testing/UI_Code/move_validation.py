@@ -93,12 +93,13 @@ class move_validation:
                 capture_list = chess.Move(w_moved_from_here[0], w_moved_to_here[0])
             elif b_moved_to_here == w_moved_from_here:
                 capture_list = chess.Move(b_moved_from_here[0], b_moved_to_here[0])
-            #
+        #
         elif w_move or b_move:
             if w_move:
                 move_list = chess.Move(w_moved_from_here[0], w_moved_to_here[0])
             elif b_move:
                 move_list = chess.Move(b_moved_from_here[0], b_moved_to_here[0])
+        #
         elif w_castle or b_castle:
             if w_castle:
                 k_kingside_castle_move = chess.E1 in w_moved_from_here and chess.G1 in w_moved_to_here
@@ -108,8 +109,10 @@ class move_validation:
 
                 if k_kingside_castle_move and r_kingside_castle_move:
                     castle_list = chess.Move.from_uci("e1g1")
+                    print("White kingside")
                 elif k_queenside_castle_move and r_queenside_castle_move:
                     castle_list = chess.Move.from_uci("e1c1")
+                    print("White queenside")
             elif b_castle:
                 k_kingside_castle_move = (chess.E8 in b_moved_from_here) and (chess.G8 in b_moved_to_here)
                 r_kingside_castle_move = (chess.H8 in b_moved_from_here) and (chess.F8 in b_moved_to_here)
@@ -118,8 +121,10 @@ class move_validation:
 
                 if k_kingside_castle_move and r_kingside_castle_move:
                     castle_list = chess.Move.from_uci("e8g8")
+                    print("Black kingside")
                 elif k_queenside_castle_move and r_queenside_castle_move:
                     castle_list = chess.Move.from_uci("e8c8")
+                    print("Black kingside")
                 #
             #
         elif w_hint or b_hint:

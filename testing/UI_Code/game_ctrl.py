@@ -7,10 +7,13 @@ from ai import AI
 
 class Game:
 
+    
     #Make board
-    board = chess.Board()
+    board = chess.Board() # standard board
+
     #board = chess.Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-    #board = chess.Board("r7/8/k7/8/8/8/7N/7K w KQkq - 0 1")
+    #board =  chess.Board("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1") # castling testing case
+    #board = chess.Board("3r4/K7/3r4/k7/8/8/8/8 b KQkq - 0 1") # check mate case
 
     #Make Electronics Control Class
     Electronics_control = Electronics_Control()
@@ -39,15 +42,15 @@ class Game:
     ############
      #Variables for live_highlighting
     selected_piece = 0           #a square location (ex: 0 - 63)
-    last_selected_piece = None   #Holds the last selected_piece if it exists. It will be reset to None at the end of a turn
     move_made = None        #temporarily holds moves made (in UCI format ex: g1f3)
+    castle_list = None      #holds the king's castle move (i.e. 'E1G1' format)
     array_legal_moves = []  #will hold the squares for the legal moves
     king_in_check   = False #will hold true/false value that says if king is in check
     king_pos = None         #will highlight king square in red
     illegal_move    = None     #will hold true/false value that says if an illegal move was made
 
-    castling_state = False      #Tracks if castling happened
-    castling_state_array = [False, False, False, False]   # loc 1 - w_kingside, loc 2 - w_queenside, loc 3 - b_kingside, loc 4 - b_queenside
+    #castling_state = False      #Tracks if castling happened
+    #castling_state_array = [False, False, False, False]   # loc 1 - w_kingside, loc 2 - w_queenside, loc 3 - b_kingside, loc 4 - b_queenside
     end_turn = False            #Only true if user hits clock or time runs out
 
     #highlight arrays
@@ -77,6 +80,11 @@ class Game:
     warning_message = "Illegal Move"
 
     def __init__(self, settings=None):
+        print("New 'Game' class object created")
+        self.board = chess.Board() # this line clears board correctly
+                                   # now can open new game without old board existing
+        print(self.board)
+
         if settings != None:
             if settings["p1 color"]: # P1 is white
                 self.chess_w = "P1"
@@ -108,6 +116,10 @@ class Game:
             #settings["game timer"]
             #settings["move timer"]
             self.start_list_LED_array()
+
+
+    def __del__(self):
+        print("deleted")
 
     def update_settings(self, h_hint, h_legal, h_illegal, h_king, h_last):
         self.highlight_hint = h_hint
@@ -299,17 +311,6 @@ class Game:
             col = self.array_legal_moves[x].to_square % 8
             self.legal_move_highlight.append( [row, col, self.color_dict["green"] ])
 
-    #checks where the piece is currently placed. Used to determine which LEDs to highlight. Only does something if an illegal move was made but was then corrected
-    def placement_check(self):  #Only for illegal move highlighting
-        print("\n", "Placement Check", "\n")
-        if (self.illegal_move == True and len(self.illegal_array) !=0):    #remove illegal move highlighting if illegal moves were corrected. No illegal moves (were corrected) but highlighting is still on the board
-            if (self.LED_data[ self.illegal_array[0][0] ][ self.illegal_array[0][1] ] == self.color_dict["yellow"]):  #Check for the first array index in the illegal_array to see if there are any illegal moves (if yellow then none of the highlights were removed)
-                for y in range(0, len(self.illegal_array)): #could perform more than 1 illegal move in a row so remove all illegal moves
-                    for x in range(0, 1):
-                        self.LED_data[ self.illegal_array[y][x] ][ self.illegal_array[y][x+1] ] == self.color_dict["black"]
-                self.illegal_array = []  #Remove all illegal moves from the array because they were corrected
-        pass
-
 
     #pushes the move when the turn has ended
     #NEED TO CHANGE THIS CODE FOR THE NEW REVISION. IT WILL ALSO ASSIGN THE HIGHLIGHTING IN HERE.
@@ -392,10 +393,9 @@ class Game:
                 self.LED_data[self.king_check_highlight[x][0]][self.king_check_highlight[x][1]] = self.color_dict["red"]
 
         #Castle Check
+        # Highlight the rook that needs to move
         for x in range(0, len(self.castle_move_highlight)):
-            self.LED_data[self.castle_move_highlight[x][0]][self.castle_move_highlight[x][1]]  = self.color_dict["cyan"]
-        #Reset the array
-        self.castle_move_highlight = []
+            self.LED_data[self.castle_move_highlight[x][0]][self.castle_move_highlight[x][1]]  = self.color_dict["magenta"]
         
         #Legal Moves 
         if self.highlight_legal and not self.ai_turn:
@@ -449,24 +449,28 @@ class Game:
         self.wrong_move_array.extend(list(self.board.pieces(chess.KING, not_turn)))
 
     def live_move_highlight(self):
-        [self.selected_piece, self.move_made, castle] = self.Move_validation.determine_move_made(self.board, self.white_pos, self.black_pos)
+        [self.selected_piece, self.move_made, self.castle_list] = self.Move_validation.determine_move_made(self.board, self.white_pos, self.black_pos)
         #print("Selected piece/square: ",self.selected_piece)
         #print("Move made: ", self.move_made)
-        #print("")
-        #self.placement_check() #check if the player corrected an illegal move if an illegal move was done.
+        #print("castle_list: ", self.castle_list)
+
         #if no move was made (just lifted a piece or nothing happens) then move_made = None. Will have to make a condition for that so that nothing on the board is highlighted unless if a piece is lifted
         #self.castle_state_check()  #checks if there's castling in progress
         self.legal_move_highlight = [] #reset the array to add new legal moves into legal_move_highlight array
         self.illegal_array = []
-
+        
+        
         self.wrong_color_moved()
 
-        if (self.selected_piece != None and self.castling_state == False):    #piece is lifted    (When swapping or killing a piece no square will be highlighted; the physical process of replacing and removing a piece on the board)
+        self.remove_rook_highlight() # remove rook highlight from castling
+
+        if (self.selected_piece != None and self.castle_list == None):    #piece is lifted    (When swapping or killing a piece no square will be highlighted; the physical process of replacing and removing a piece on the board)
 
             self.piece_lifted() #logic to load legal_move highlight squares
 
-        if(self.move_made != None and self.castling_state == False): #a move was made
-
+        if(self.move_made != None): #a move was made 
+            #and self.castle_list == None): #a move was made
+            
             self.illegal_move = self.Move_validation.is_legal_move(self.board, self.move_made)  #check if move was illegal
             if(self.illegal_move == False or (self.ai_on and self.ai_turn and self.move_made != self.ai_move)):  #It is an illegal move
                 self.warning_message = "Illegal Move Made"
@@ -485,10 +489,20 @@ class Game:
                     #call game reading funtions
 
             else:    #legal move was made (King check condition done elsewhere)
-                self.move_buffer = self.move_made   #save the move for the move buffer
-                #self.castle_highlight_check()    #checks if a castle was done
-                #Will need a checking_promotion()
-                #touchscreen can call checking_king_check to see if the king is in check at the beginning of a new turn
+                # castling is in progress. king has moved but rook has not moved yet.
+                # don't add the move to the buffer yet.
+                if not (self.castle_highlight_check() ):
+                    self.move_buffer = self.move_made   #save the move for the move buffer
+
+
+        elif self.castle_list != None:
+            # castling happened (both a king and rook have been moved)
+            print("Castle has happened already: ", self.castle_list)
+            # castle_list can be 'e1c1', 'e1g1', 'e8c8', 'e8g8'
+            # push the castle_list to the move_buffer
+            self.move_buffer = self.castle_list 
+            self.castle_move_highlight = [] # castling is now DONE, remove rook highlight
+            
         else:
             # if no move was made
             self.move_buffer = None
@@ -497,4 +511,87 @@ class Game:
     def check_end_game(self):
         return self.board.is_game_over()
 
+    # highlights the position that the rook should move to to complete the castle
+    # returns true if castling in progress (king has moved but not rook)
+    # returns false if castling not in progress
+    def castle_highlight_check(self):
+        self.board.push(self.move_made) # have to push move to check the king location
+                                        # kind of a hack
 
+        if(self.board.turn == chess.BLACK):
+            print("white's turn")
+            if (self.move_made.uci() == "e1g1" and self.board.piece_at(chess.G1).symbol() == "K"):
+                print("white kingside castle")
+                self.castle_move_highlight.append([0, 7])
+                self.castle_move_highlight.append([0, 5])
+                self.board.pop()
+
+                return True
+            elif (self.move_made.uci() == "e1c1" and self.board.piece_at(chess.C1).symbol() == "K"):
+                print("white queenside castle")
+                self.castle_move_highlight.append([0, 0])
+                self.castle_move_highlight.append([0, 3])
+                self.board.pop()
+
+                return True
+            else:
+                print("no white castle")
+                self.board.pop()
+
+                return False
+            #
+        #
+        elif(self.board.turn == chess.WHITE):
+            print("black's turn")
+            if (self.move_made.uci() == "e8g8" and self.board.piece_at(chess.G8).symbol() == "k"):
+                print("black kingside castle")
+                self.castle_move_highlight.append([7, 7])
+                self.castle_move_highlight.append([7, 5])
+                self.board.pop()
+
+                return True
+            elif (self.move_made.uci() == "e8c8" and self.board.piece_at(chess.C8).symbol() == "k"):
+                print("black queenside castle")
+                self.castle_move_highlight.append([7, 0])
+                self.castle_move_highlight.append([7, 3])
+                self.board.pop()
+
+                return True
+            else:
+                print("no black castle")   
+                self.board.pop()
+
+                return False
+            #
+        #
+
+    def remove_rook_highlight(self):
+        # this SHOULD only remove the rook highlighting if you undo the king's move
+        # right now this removes highlight if you lift rook (not intentional) 
+        # TODO: fix this
+        if (self.move_made == None):
+            self.castle_move_highlight = []
+
+        # this section does not work because move_buffer is none if castling is not complete yet
+        # if only moved the king, the move_buffer is empty
+        '''
+        if (self.move_buffer != None):
+            self.board.push(self.move_made)
+
+            no_longer_w_king_castle  = (self.move_buffer.uci() == "e1g1" and self.board.piece_at(chess.G1).symbol() != "K")
+            no_longer_w_queen_castle = (self.move_buffer.uci() == "e1c1" and self.board.piece_at(chess.C1).symbol() != "K")
+            no_longer_b_king_castle  = (self.move_buffer.uci() == "e8g8" and self.board.piece_at(chess.G8).symbol() != "k")
+            no_longer_b_queen_castle = (self.move_buffer.uci() == "e8c8" and self.board.piece_at(chess.C8).symbol() != "k")
+         
+            if (no_longer_w_king_castle) or (no_longer_w_queen_castle):
+                #remove rook highlight
+                self.castle_move_highlight = []
+            if (no_longer_b_king_castle) or (no_longer_b_queen_castle):
+                #remove rook highlight
+                self.castle_move_highlight = []
+            self.board.pop()
+        '''
+    
+    def reset_board(self):
+        self.board = None
+        self.board = chess.Board()

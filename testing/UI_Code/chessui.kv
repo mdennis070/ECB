@@ -40,6 +40,15 @@
 	ButtonImage:
 		source: "img/help_icon.png"
 
+<HomeIcon@Button>:
+	size_hint_x: None 
+	size_hint_y: 1.0
+	width: self.height
+	on_release: root.parent.parent.parent.manager.current = "home"
+	
+	ButtonImage:
+		source: "img/home_icon.png"
+
 <SettingIcon@Button>:
 	size_hint_x: None 
 	size_hint_y: 1.0

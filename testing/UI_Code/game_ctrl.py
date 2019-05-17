@@ -59,6 +59,7 @@ class Game:
     highlight_king = True
     highlight_last = True
     highlight_hint = True
+    highlight_wrong_move = False
 
     legal_move_highlight = []   #holds locations to highlight for legal move highilighting
     last_move_highlight = []    #holds locations to highlight for last move highlighting
@@ -424,16 +425,17 @@ class Game:
                 self.LED_data[self.illegal_array[x][0]][self.illegal_array[x][1]] = self.color_dict["yellow"]
 
         #Wrong move made
-        for x in range(0, len(self.wrong_move_array)):
-            tile_val = self.wrong_move_array[x]
-            row = tile_val // 8
-            col = tile_val % 8
+        if self.highlight_wrong_move:
+            for x in range(0, len(self.wrong_move_array)):
+                tile_val = self.wrong_move_array[x]
+                row = tile_val // 8
+                col = tile_val % 8
 
-            my_color = self.color_dict["yellow"]
-            if self.board.turn and not self.black_pos[row][col]: # whites turn
-                self.LED_data[row][col] = my_color
-            elif not self.board.turn and not self.white_pos[row][col]: # blacks turn
-                self.LED_data[row][col] = my_color
+                my_color = self.color_dict["yellow"]
+                if self.board.turn and not self.black_pos[row][col]: # whites turn
+                    self.LED_data[row][col] = my_color
+                elif not self.board.turn and not self.white_pos[row][col]: # blacks turn
+                    self.LED_data[row][col] = my_color
 
         [self.white_pos, self.black_pos] = self.Electronics_control.refresh_board(self.LED_data, self.brightness, self.rotate_board)
 
@@ -595,3 +597,6 @@ class Game:
     def reset_board(self):
         self.board = None
         self.board = chess.Board()
+
+    def toggle_info(self):
+        self.highlight_wrong_move = not self.highlight_wrong_move

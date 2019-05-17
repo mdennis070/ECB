@@ -33,6 +33,11 @@ class HelpIcon(Button):
         pop = SimplePopup()
         pop.open()
         
+class InfoIcon(Button):
+
+    def toggle_info(self):
+        global gameCtrl;
+        gameCtrl.toggle_info()
 
 class SimplePopup(Popup):
     
